@@ -1,0 +1,91 @@
+@startuml
+skinparam classAttributeIconSize 0
+
+package GUI {
+  class MainFrame {
+    - inputArea
+    - outputArea
+    - methodDropdown
+  }
+}
+
+package App {
+  class MainApp {
+    + initialize()
+    + run()
+  }
+}
+
+package Core {
+  interface Summarizer {
+    + summarize(text) : String
+  }
+
+  class RuleBasedSummarizer {
+    - maxSentences : int
+    + summarize(text) : String
+  }
+
+  class ApiBasedSummarizer {
+    - apiKey : String
+    + summarize(text) : String
+  }
+}
+
+package Support {
+  class TextInputHandler {
+    + loadFromFile()
+    + loadFromClipboard()
+  }
+
+  class SummarizerFactory {
+    - hasInternet : boolean
+    - tokenValid : boolean
+    + create(apiKey) : Summarizer
+  }
+
+  class SummaryFormatter {
+    + format() : String
+    + exportToTxt()
+    + exportToPdf()
+  }
+}
+
+package Data {
+  class HistoryRecord {
+    - id : int
+    - timestamp : String
+    - summary : String
+  }
+
+  class SummaryHistoryManager {
+    - historyList : List<HistoryRecord>
+    + addRecord()
+    + getHistory()
+    - loadFromFile()
+    - saveToFile()
+  }
+}
+
+package Utility {
+  class ConnectivityChecker {
+    + hasInternet() : boolean
+  }
+
+  class TokenValidator {
+    + isValid() : boolean
+  }
+}
+
+RuleBasedSummarizer ..|> Summarizer
+ApiBasedSummarizer ..|> Summarizer
+MainApp --> Summarizer
+MainApp --> MainFrame
+MainApp --> SummaryHistoryManager
+TextInputHandler ..> RuleBasedSummarizer
+SummarizerFactory ..> Summarizer
+SummarizerFactory ..> ConnectivityChecker
+SummarizerFactory ..> TokenValidator
+SummaryFormatter ..> ApiBasedSummarizer
+SummaryHistoryManager o-- HistoryRecord
+@enduml
