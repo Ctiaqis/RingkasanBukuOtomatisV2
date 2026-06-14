@@ -23,7 +23,7 @@ public class MainFrame extends JFrame {
     private final JTextArea outputArea = new JTextArea();
     private final JComboBox<String> methodDropdown = new JComboBox<>(new String[] { "Rule-based", "API-based" });
     private final JComboBox<String> lengthDropdown = new JComboBox<>(new String[] { "Pendek", "Sedang", "Panjang" });
-    private final JLabel statusLabel = new JLabel(" Status: Siap");
+    private final JLabel statusLabel = new JLabel("Status: Siap");
 
     private final TextInputHandler textInputHandler;
     private final SummaryFormatter summaryFormatter;
@@ -46,7 +46,7 @@ public class MainFrame extends JFrame {
         setTitle("Aplikasi Ringkasan Buku Otomatis");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setPreferredSize(new Dimension(1000, 650));
-        setLayout(new BorderLayout(10, 10));
+        setLayout(new BorderLayout());
 
         initComponents();
         pack();
@@ -54,95 +54,158 @@ public class MainFrame extends JFrame {
     }
 
     private void initComponents() {
+        Color bgColor = new Color(245, 245, 245);
+        Color primaryBlue = new Color(0, 120, 215);
+        Color textColor = new Color(50, 50, 50);
+        Font mainFont = new Font("Segoe UI", Font.PLAIN, 13);
+        Font boldFont = new Font("Segoe UI", Font.BOLD, 13);
+        
+        // Fallback font jika Segoe UI tidak tersedia
+        if (!GraphicsEnvironment.getLocalGraphicsEnvironment().getAvailableFontFamilyNames()[0].equals("Segoe UI")) {
+             mainFont = new Font("SansSerif", Font.PLAIN, 13);
+             boldFont = new Font("SansSerif", Font.BOLD, 13);
+        }
+
+        // Apply base background
+        getContentPane().setBackground(bgColor);
+
         // --- BAGIAN ATAS ---
         JPanel topPanel = new JPanel(new BorderLayout(10, 10));
-        topPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 5, 10));
+        topPanel.setBackground(bgColor);
+        topPanel.setBorder(BorderFactory.createEmptyBorder(15, 15, 5, 15));
 
-        // Title dan Tombol Kanan Atas
-        JPanel titleAndButtonsPanel = new JPanel(new BorderLayout());
-        JLabel titleLabel = new JLabel("Aplikasi Ringkasan Buku Otomatis");
-        titleLabel.setFont(new Font("SansSerif", Font.BOLD, 22));
+        JPanel headerPanel = new JPanel(new BorderLayout(10, 10));
+        headerPanel.setBackground(bgColor);
+
+        JPanel titleFieldPanel = new JPanel(new BorderLayout(10, 0));
+        titleFieldPanel.setBackground(bgColor);
+        JLabel titleLabel = new JLabel("Judul Buku/Artikel:");
+        titleLabel.setFont(boldFont);
+        titleLabel.setForeground(textColor);
+        titleField.setFont(mainFont);
+        titleField.setPreferredSize(new Dimension(300, 28));
         
-        JPanel topButtonsPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 5, 0));
-        JButton historyButton = new JButton("Riwayat");
-        JButton helpButton = new JButton("Bantuan");
+        titleFieldPanel.add(titleLabel, BorderLayout.WEST);
+        titleFieldPanel.add(titleField, BorderLayout.CENTER);
+
+        JPanel topButtonsPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 8, 0));
+        topButtonsPanel.setBackground(bgColor);
+        JButton historyButton = createStyledButton("Riwayat", Color.WHITE, textColor, mainFont);
+        JButton helpButton = createStyledButton("Bantuan", Color.WHITE, textColor, mainFont);
         topButtonsPanel.add(historyButton);
         topButtonsPanel.add(helpButton);
 
-        titleAndButtonsPanel.add(titleLabel, BorderLayout.WEST);
-        titleAndButtonsPanel.add(topButtonsPanel, BorderLayout.EAST);
+        headerPanel.add(titleFieldPanel, BorderLayout.CENTER);
+        headerPanel.add(topButtonsPanel, BorderLayout.EAST);
 
-        // Field Judul Buku/Artikel
-        JPanel titleFieldPanel = new JPanel(new BorderLayout(5, 5));
-        titleFieldPanel.add(new JLabel("Judul Buku/Artikel:"), BorderLayout.WEST);
-        titleFieldPanel.add(titleField, BorderLayout.CENTER);
-
-        topPanel.add(titleAndButtonsPanel, BorderLayout.NORTH);
-        topPanel.add(titleFieldPanel, BorderLayout.SOUTH);
+        topPanel.add(headerPanel, BorderLayout.NORTH);
         add(topPanel, BorderLayout.NORTH);
 
         // --- BAGIAN TENGAH ---
+        inputArea.setFont(mainFont);
+        outputArea.setFont(mainFont);
         inputArea.setLineWrap(true);
         inputArea.setWrapStyleWord(true);
         outputArea.setLineWrap(true);
         outputArea.setWrapStyleWord(true);
         outputArea.setEditable(false);
 
-        JPanel middlePanel = new JPanel(new GridLayout(1, 2, 10, 0));
-        middlePanel.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 10));
+        JPanel middlePanel = new JPanel(new GridLayout(1, 2, 15, 0));
+        middlePanel.setBackground(bgColor);
+        middlePanel.setBorder(BorderFactory.createEmptyBorder(10, 15, 5, 15));
 
         // Kiri: Input Teks
-        JPanel inputPanel = new JPanel(new BorderLayout(0, 5));
+        JPanel inputPanel = new JPanel(new BorderLayout(0, 8));
+        inputPanel.setBackground(bgColor);
+        
         JPanel inputHeaderPanel = new JPanel(new BorderLayout());
-        inputHeaderPanel.add(new JLabel("Input Teks:"), BorderLayout.WEST);
+        inputHeaderPanel.setBackground(bgColor);
+        JLabel inputLabel = new JLabel("Input Teks:");
+        inputLabel.setFont(boldFont);
+        inputLabel.setForeground(textColor);
+        inputHeaderPanel.add(inputLabel, BorderLayout.WEST);
         
         JPanel inputButtonsPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 5, 0));
-        JButton loadFileButton = new JButton("Load File");
-        JButton clipboardButton = new JButton("Load Clipboard");
-        JButton clearButton = new JButton("Bersihkan");
+        inputButtonsPanel.setBackground(bgColor);
+        JButton loadFileButton = createStyledButton("Load File", Color.WHITE, textColor, mainFont);
+        JButton clipboardButton = createStyledButton("Load Clipboard", Color.WHITE, textColor, mainFont);
+        JButton clearButton = createStyledButton("Bersihkan", new Color(220, 53, 69), Color.WHITE, mainFont);
         inputButtonsPanel.add(loadFileButton);
         inputButtonsPanel.add(clipboardButton);
         inputButtonsPanel.add(clearButton);
         inputHeaderPanel.add(inputButtonsPanel, BorderLayout.EAST);
 
         inputPanel.add(inputHeaderPanel, BorderLayout.NORTH);
-        inputPanel.add(new JScrollPane(inputArea), BorderLayout.CENTER);
+        JScrollPane inputScroll = new JScrollPane(inputArea);
+        inputScroll.setBorder(BorderFactory.createLineBorder(new Color(200, 200, 200)));
+        inputPanel.add(inputScroll, BorderLayout.CENTER);
 
         // Kanan: Hasil Ringkasan
-        JPanel outputPanel = new JPanel(new BorderLayout(0, 5));
-        outputPanel.add(new JLabel("Hasil Ringkasan:"), BorderLayout.NORTH);
-        outputPanel.add(new JScrollPane(outputArea), BorderLayout.CENTER);
+        JPanel outputPanel = new JPanel(new BorderLayout(0, 8));
+        outputPanel.setBackground(bgColor);
+        JLabel outputLabel = new JLabel("Hasil Ringkasan:");
+        outputLabel.setFont(boldFont);
+        outputLabel.setForeground(textColor);
+        outputPanel.add(outputLabel, BorderLayout.NORTH);
+        JScrollPane outputScroll = new JScrollPane(outputArea);
+        outputScroll.setBorder(BorderFactory.createLineBorder(new Color(200, 200, 200)));
+        outputPanel.add(outputScroll, BorderLayout.CENTER);
 
         middlePanel.add(inputPanel);
         middlePanel.add(outputPanel);
         add(middlePanel, BorderLayout.CENTER);
 
         // --- BAGIAN BAWAH ---
-        JPanel bottomPanel = new JPanel(new BorderLayout(10, 10));
-        bottomPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        JPanel bottomPanel = new JPanel(new BorderLayout());
+        bottomPanel.setBackground(bgColor);
+        bottomPanel.setBorder(BorderFactory.createEmptyBorder(10, 15, 15, 15));
 
-        JPanel controlPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
+        JPanel controlPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 12, 5));
+        controlPanel.setBackground(bgColor);
         
-        JButton summarizeButton = new JButton("RINGKAS");
-        summarizeButton.setFont(new Font("SansSerif", Font.BOLD, 14));
-        JButton saveTxtButton = new JButton("Simpan TXT");
-        JButton savePdfButton = new JButton("Simpan PDF");
-        JButton setApiKeyButton = new JButton("Set API Key");
+        methodDropdown.setFont(mainFont);
+        methodDropdown.setBackground(Color.WHITE);
+        lengthDropdown.setFont(mainFont);
+        lengthDropdown.setBackground(Color.WHITE);
+        
+        JButton summarizeButton = createStyledButton("RINGKAS", primaryBlue, Color.WHITE, boldFont);
+        summarizeButton.setPreferredSize(new Dimension(120, 35));
+        
+        JButton saveTxtButton = createStyledButton("Simpan TXT", Color.WHITE, textColor, mainFont);
+        JButton savePdfButton = createStyledButton("Simpan PDF", Color.WHITE, textColor, mainFont);
+        JButton setApiKeyButton = createStyledButton("Set API Key", Color.WHITE, textColor, mainFont);
 
-        controlPanel.add(new JLabel("Metode:"));
+        JLabel methodLabel = new JLabel("Metode:");
+        methodLabel.setFont(mainFont);
+        JLabel lengthLabel = new JLabel("Panjang:");
+        lengthLabel.setFont(mainFont);
+
+        controlPanel.add(methodLabel);
         controlPanel.add(methodDropdown);
-        controlPanel.add(new JLabel("Panjang:"));
+        controlPanel.add(lengthLabel);
         controlPanel.add(lengthDropdown);
         controlPanel.add(summarizeButton);
         controlPanel.add(saveTxtButton);
         controlPanel.add(savePdfButton);
         controlPanel.add(setApiKeyButton);
 
-        statusLabel.setBorder(BorderFactory.createLoweredBevelBorder());
+        statusLabel.setFont(mainFont);
+        statusLabel.setForeground(new Color(100, 100, 100));
+        statusLabel.setBorder(BorderFactory.createEmptyBorder(4, 10, 4, 10));
+        
+        JPanel statusPanel = new JPanel(new BorderLayout());
+        statusPanel.setBackground(new Color(235, 235, 235));
+        statusPanel.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, new Color(210, 210, 210)));
+        statusPanel.add(statusLabel, BorderLayout.WEST);
 
         bottomPanel.add(controlPanel, BorderLayout.CENTER);
-        bottomPanel.add(statusLabel, BorderLayout.SOUTH);
-        add(bottomPanel, BorderLayout.SOUTH);
+        
+        JPanel footerContainer = new JPanel(new BorderLayout());
+        footerContainer.setBackground(bgColor);
+        footerContainer.add(bottomPanel, BorderLayout.CENTER);
+        footerContainer.add(statusPanel, BorderLayout.SOUTH);
+        
+        add(footerContainer, BorderLayout.SOUTH);
 
         // --- EVENT LISTENERS ---
         loadFileButton.addActionListener(e -> handleLoadFile());
@@ -154,6 +217,28 @@ public class MainFrame extends JFrame {
         savePdfButton.addActionListener(e -> handleSavePdf());
         setApiKeyButton.addActionListener(e -> handleSetApiKey());
         clearButton.addActionListener(e -> handleClear());
+    }
+
+    private JButton createStyledButton(String text, Color bg, Color fg, Font font) {
+        JButton btn = new JButton(text);
+        btn.setFont(font);
+        btn.setBackground(bg);
+        btn.setForeground(fg);
+        btn.setFocusPainted(false);
+        btn.setOpaque(true);
+        
+        // Custom simple border
+        btn.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(new Color(200, 200, 200)),
+                BorderFactory.createEmptyBorder(5, 12, 5, 12)
+        ));
+        
+        // Hilangkan border untuk tombol warna utama (biru dan merah) agar lebih "flat"
+        if (bg.equals(new Color(0, 120, 215)) || bg.equals(new Color(220, 53, 69))) {
+             btn.setBorder(BorderFactory.createEmptyBorder(6, 13, 6, 13));
+        }
+        
+        return btn;
     }
 
     private void handleLoadFile() {
@@ -301,6 +386,6 @@ public class MainFrame extends JFrame {
     }
     
     private void setStatus(String message) {
-        statusLabel.setText(" Status: " + message);
+        statusLabel.setText("Status: " + message);
     }
 }
