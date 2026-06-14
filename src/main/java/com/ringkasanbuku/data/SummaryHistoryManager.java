@@ -13,7 +13,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class SummaryHistoryManager {
-    private static final Pattern RECORD_PATTERN = Pattern.compile("\\{\\s*\\\"id\\\":\\s*(\\d+),\\s*\\\"timestamp\\\":\\s*\\\"(.*?)\\\",\\s*\\\"summary\\\":\\s*\\\"(.*?)\\\"\\s*\\}", Pattern.DOTALL);
+    private static final Pattern RECORD_PATTERN = Pattern.compile(
+            "\\{\\s*\\\"id\\\":\\s*(\\d+),\\s*\\\"timestamp\\\":\\s*\\\"(.*?)\\\",\\s*\\\"summary\\\":\\s*\\\"(.*?)\\\"\\s*\\}",
+            Pattern.DOTALL);
 
     private final List<HistoryRecord> historyList = new ArrayList<>();
     private final Path storageFile;
@@ -63,8 +65,8 @@ public class SummaryHistoryManager {
         for (int i = 0; i < historyList.size(); i++) {
             HistoryRecord record = historyList.get(i);
             json.append("  {\"id\": ").append(record.getId())
-                .append(", \"timestamp\": \"").append(escape(record.getTimestamp())).append("\"")
-                .append(", \"summary\": \"").append(escape(record.getSummary())).append("\"}");
+                    .append(", \"timestamp\": \"").append(escape(record.getTimestamp())).append("\"")
+                    .append(", \"summary\": \"").append(escape(record.getSummary())).append("\"}");
             if (i < historyList.size() - 1) {
                 json.append(',');
             }
@@ -80,17 +82,10 @@ public class SummaryHistoryManager {
     }
 
     private String escape(String value) {
-        return value
-                .replace("\\", "\\\\")
-                .replace("\"", "\\\"")
-                .replace("\n", "\\n")
-                .replace("\r", "");
+        return value.replace("\\", "\\\\").replace("\"", "\\\"").replace("\n", "\\n").replace("\r", "");
     }
 
     private String unescape(String value) {
-        return value
-                .replace("\\n", "\n")
-                .replace("\\\"", "\"")
-                .replace("\\\\", "\\");
+        return value.replace("\\n", "\n").replace("\\\"", "\"").replace("\\\\", "\\");
     }
 }

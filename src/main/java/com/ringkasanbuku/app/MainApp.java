@@ -23,8 +23,7 @@ public class MainApp {
                 summaryFormatter,
                 historyManager,
                 connectivityChecker,
-                tokenValidator
-        );
+                tokenValidator);
     }
 
     public void run() {

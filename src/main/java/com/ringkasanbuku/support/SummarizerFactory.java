@@ -13,9 +13,8 @@ public class SummarizerFactory {
     private final ConnectivityChecker connectivityChecker;
     private final TokenValidator tokenValidator;
 
-    public SummarizerFactory(String preferredMethod,
-                             ConnectivityChecker connectivityChecker,
-                             TokenValidator tokenValidator) {
+    public SummarizerFactory(String preferredMethod, ConnectivityChecker connectivityChecker,
+            TokenValidator tokenValidator) {
         this.preferredMethod = preferredMethod;
         this.connectivityChecker = connectivityChecker;
         this.tokenValidator = tokenValidator;
@@ -29,13 +28,5 @@ public class SummarizerFactory {
             return new ApiBasedSummarizer(apiKey);
         }
         return new RuleBasedSummarizer();
-    }
-
-    public boolean hasInternet() {
-        return hasInternet;
-    }
-
-    public boolean isTokenValid() {
-        return tokenValid;
     }
 }

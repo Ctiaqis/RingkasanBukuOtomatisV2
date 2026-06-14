@@ -9,31 +9,21 @@ import com.ringkasanbuku.support.SummaryFormatter;
 import com.ringkasanbuku.support.TextInputHandler;
 import com.ringkasanbuku.util.ConnectivityChecker;
 import com.ringkasanbuku.util.TokenValidator;
-import java.awt.BorderLayout;
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.GridLayout;
+
+import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
-import javax.swing.BorderFactory;
-import javax.swing.JButton;
-import javax.swing.JComboBox;
-import javax.swing.JFileChooser;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JSplitPane;
-import javax.swing.JTextArea;
-import javax.swing.SwingConstants;
+import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 public class MainFrame extends JFrame {
+    private final JTextField titleField = new JTextField();
     private final JTextArea inputArea = new JTextArea();
     private final JTextArea outputArea = new JTextArea();
-    private final JComboBox<String> methodDropdown = new JComboBox<>(new String[]{"Rule-based", "API-based"});
+    private final JComboBox<String> methodDropdown = new JComboBox<>(new String[] { "Rule-based", "API-based" });
+    private final JComboBox<String> lengthDropdown = new JComboBox<>(new String[] { "Pendek", "Sedang", "Panjang" });
+    private final JLabel statusLabel = new JLabel(" Status: Siap");
 
     private final TextInputHandler textInputHandler;
     private final SummaryFormatter summaryFormatter;
@@ -44,11 +34,9 @@ public class MainFrame extends JFrame {
     private String currentSummary = "";
     private String apiKey = "";
 
-    public MainFrame(TextInputHandler textInputHandler,
-                     SummaryFormatter summaryFormatter,
-                     SummaryHistoryManager historyManager,
-                     ConnectivityChecker connectivityChecker,
-                     TokenValidator tokenValidator) {
+    public MainFrame(TextInputHandler textInputHandler, SummaryFormatter summaryFormatter,
+            SummaryHistoryManager historyManager, ConnectivityChecker connectivityChecker,
+            TokenValidator tokenValidator) {
         this.textInputHandler = textInputHandler;
         this.summaryFormatter = summaryFormatter;
         this.historyManager = historyManager;
@@ -66,61 +54,102 @@ public class MainFrame extends JFrame {
     }
 
     private void initComponents() {
-        JLabel title = new JLabel("Aplikasi Ringkasan Buku Otomatis", SwingConstants.CENTER);
-        title.setFont(new Font("SansSerif", Font.BOLD, 22));
-        title.setBorder(BorderFactory.createEmptyBorder(10, 10, 5, 10));
-        add(title, BorderLayout.NORTH);
+        // --- BAGIAN ATAS ---
+        JPanel topPanel = new JPanel(new BorderLayout(10, 10));
+        topPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 5, 10));
 
+        // Title dan Tombol Kanan Atas
+        JPanel titleAndButtonsPanel = new JPanel(new BorderLayout());
+        JLabel titleLabel = new JLabel("Aplikasi Ringkasan Buku Otomatis");
+        titleLabel.setFont(new Font("SansSerif", Font.BOLD, 22));
+        
+        JPanel topButtonsPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 5, 0));
+        JButton historyButton = new JButton("Riwayat");
+        JButton helpButton = new JButton("Bantuan");
+        topButtonsPanel.add(historyButton);
+        topButtonsPanel.add(helpButton);
+
+        titleAndButtonsPanel.add(titleLabel, BorderLayout.WEST);
+        titleAndButtonsPanel.add(topButtonsPanel, BorderLayout.EAST);
+
+        // Field Judul Buku/Artikel
+        JPanel titleFieldPanel = new JPanel(new BorderLayout(5, 5));
+        titleFieldPanel.add(new JLabel("Judul Buku/Artikel:"), BorderLayout.WEST);
+        titleFieldPanel.add(titleField, BorderLayout.CENTER);
+
+        topPanel.add(titleAndButtonsPanel, BorderLayout.NORTH);
+        topPanel.add(titleFieldPanel, BorderLayout.SOUTH);
+        add(topPanel, BorderLayout.NORTH);
+
+        // --- BAGIAN TENGAH ---
         inputArea.setLineWrap(true);
         inputArea.setWrapStyleWord(true);
         outputArea.setLineWrap(true);
         outputArea.setWrapStyleWord(true);
         outputArea.setEditable(false);
 
-        JScrollPane inputScroll = new JScrollPane(inputArea);
-        inputScroll.setBorder(BorderFactory.createTitledBorder("Input Teks"));
-        JScrollPane outputScroll = new JScrollPane(outputArea);
-        outputScroll.setBorder(BorderFactory.createTitledBorder("Output Ringkasan"));
+        JPanel middlePanel = new JPanel(new GridLayout(1, 2, 10, 0));
+        middlePanel.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 10));
 
-        JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, inputScroll, outputScroll);
-        splitPane.setResizeWeight(0.5);
-        add(splitPane, BorderLayout.CENTER);
-
-        JPanel controls = new JPanel(new BorderLayout(10, 10));
-        controls.setBorder(BorderFactory.createEmptyBorder(0, 10, 10, 10));
-
-        JPanel topButtons = new JPanel(new GridLayout(2, 4, 8, 8));
+        // Kiri: Input Teks
+        JPanel inputPanel = new JPanel(new BorderLayout(0, 5));
+        JPanel inputHeaderPanel = new JPanel(new BorderLayout());
+        inputHeaderPanel.add(new JLabel("Input Teks:"), BorderLayout.WEST);
+        
+        JPanel inputButtonsPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 5, 0));
         JButton loadFileButton = new JButton("Load File");
         JButton clipboardButton = new JButton("Load Clipboard");
-        JButton summarizeButton = new JButton("Ringkas");
-        JButton historyButton = new JButton("Riwayat");
+        JButton clearButton = new JButton("Bersihkan");
+        inputButtonsPanel.add(loadFileButton);
+        inputButtonsPanel.add(clipboardButton);
+        inputButtonsPanel.add(clearButton);
+        inputHeaderPanel.add(inputButtonsPanel, BorderLayout.EAST);
+
+        inputPanel.add(inputHeaderPanel, BorderLayout.NORTH);
+        inputPanel.add(new JScrollPane(inputArea), BorderLayout.CENTER);
+
+        // Kanan: Hasil Ringkasan
+        JPanel outputPanel = new JPanel(new BorderLayout(0, 5));
+        outputPanel.add(new JLabel("Hasil Ringkasan:"), BorderLayout.NORTH);
+        outputPanel.add(new JScrollPane(outputArea), BorderLayout.CENTER);
+
+        middlePanel.add(inputPanel);
+        middlePanel.add(outputPanel);
+        add(middlePanel, BorderLayout.CENTER);
+
+        // --- BAGIAN BAWAH ---
+        JPanel bottomPanel = new JPanel(new BorderLayout(10, 10));
+        bottomPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+
+        JPanel controlPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
+        
+        JButton summarizeButton = new JButton("RINGKAS");
+        summarizeButton.setFont(new Font("SansSerif", Font.BOLD, 14));
         JButton saveTxtButton = new JButton("Simpan TXT");
         JButton savePdfButton = new JButton("Simpan PDF");
         JButton setApiKeyButton = new JButton("Set API Key");
-        JButton clearButton = new JButton("Bersihkan");
 
-        topButtons.add(loadFileButton);
-        topButtons.add(clipboardButton);
-        topButtons.add(summarizeButton);
-        topButtons.add(historyButton);
-        topButtons.add(saveTxtButton);
-        topButtons.add(savePdfButton);
-        topButtons.add(setApiKeyButton);
-        topButtons.add(clearButton);
+        controlPanel.add(new JLabel("Metode:"));
+        controlPanel.add(methodDropdown);
+        controlPanel.add(new JLabel("Panjang:"));
+        controlPanel.add(lengthDropdown);
+        controlPanel.add(summarizeButton);
+        controlPanel.add(saveTxtButton);
+        controlPanel.add(savePdfButton);
+        controlPanel.add(setApiKeyButton);
 
-        JPanel methodPanel = new JPanel(new BorderLayout(8, 0));
-        methodPanel.setBorder(BorderFactory.createTitledBorder("Metode Ringkasan"));
-        methodPanel.add(new JLabel("Pilih metode:"), BorderLayout.WEST);
-        methodPanel.add(methodDropdown, BorderLayout.CENTER);
+        statusLabel.setBorder(BorderFactory.createLoweredBevelBorder());
 
-        controls.add(topButtons, BorderLayout.CENTER);
-        controls.add(methodPanel, BorderLayout.SOUTH);
-        add(controls, BorderLayout.SOUTH);
+        bottomPanel.add(controlPanel, BorderLayout.CENTER);
+        bottomPanel.add(statusLabel, BorderLayout.SOUTH);
+        add(bottomPanel, BorderLayout.SOUTH);
 
+        // --- EVENT LISTENERS ---
         loadFileButton.addActionListener(e -> handleLoadFile());
         clipboardButton.addActionListener(e -> handleLoadClipboard());
         summarizeButton.addActionListener(e -> handleSummarize());
         historyButton.addActionListener(e -> handleShowHistory());
+        helpButton.addActionListener(e -> handleShowHelp());
         saveTxtButton.addActionListener(e -> handleSaveTxt());
         savePdfButton.addActionListener(e -> handleSavePdf());
         setApiKeyButton.addActionListener(e -> handleSetApiKey());
@@ -130,11 +159,10 @@ public class MainFrame extends JFrame {
     private void handleLoadFile() {
         JFileChooser chooser = new JFileChooser();
         chooser.setFileFilter(new FileNameExtensionFilter("Text and PDF", "txt", "pdf"));
-        int result = chooser.showOpenDialog(this);
-        if (result == JFileChooser.APPROVE_OPTION) {
+        if (chooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
             try {
-                String text = textInputHandler.loadFromFile(chooser.getSelectedFile());
-                inputArea.setText(text);
+                inputArea.setText(textInputHandler.loadFromFile(chooser.getSelectedFile()));
+                setStatus("File dimuat: " + chooser.getSelectedFile().getName());
             } catch (IOException ex) {
                 showError(ex.getMessage());
             }
@@ -143,8 +171,8 @@ public class MainFrame extends JFrame {
 
     private void handleLoadClipboard() {
         try {
-            String text = textInputHandler.loadFromClipboard();
-            inputArea.setText(text);
+            inputArea.setText(textInputHandler.loadFromClipboard());
+            setStatus("Teks dimuat dari clipboard.");
         } catch (IOException ex) {
             showError(ex.getMessage());
         }
@@ -162,20 +190,23 @@ public class MainFrame extends JFrame {
             handleSetApiKey();
         }
 
+        setStatus("Meringkas...");
+
         SummarizerFactory factory = new SummarizerFactory(method, connectivityChecker, tokenValidator);
         Summarizer summarizer = factory.create(apiKey);
 
         if ("API-based".equals(method) && !(summarizer instanceof ApiBasedSummarizer)) {
             JOptionPane.showMessageDialog(this,
-                    "API-based tidak dapat digunakan. Sistem otomatis menggunakan Rule-based.",
-                    "Info Fallback",
+                    "API-based tidak dapat digunakan. Sistem otomatis menggunakan Rule-based.", "Info Fallback",
                     JOptionPane.INFORMATION_MESSAGE);
         }
 
         String summary = summarizer.summarize(inputText);
         currentSummary = summaryFormatter.format(summary);
         outputArea.setText(currentSummary);
+        
         historyManager.addRecord(currentSummary);
+        setStatus("Selesai meringkas teks.");
     }
 
     private void handleShowHistory() {
@@ -184,19 +215,30 @@ public class MainFrame extends JFrame {
             JOptionPane.showMessageDialog(this, "Belum ada riwayat ringkasan.");
             return;
         }
-
         StringBuilder builder = new StringBuilder();
         for (HistoryRecord record : history) {
             builder.append("ID: ").append(record.getId()).append('\n')
                     .append("Waktu: ").append(record.getTimestamp()).append('\n')
                     .append("Ringkasan: ").append(record.getSummary()).append("\n\n");
         }
-
         JTextArea historyArea = new JTextArea(builder.toString(), 20, 50);
         historyArea.setLineWrap(true);
         historyArea.setWrapStyleWord(true);
         historyArea.setEditable(false);
-        JOptionPane.showMessageDialog(this, new JScrollPane(historyArea), "Riwayat Ringkasan", JOptionPane.INFORMATION_MESSAGE);
+        historyArea.setCaretPosition(0);
+        JOptionPane.showMessageDialog(this, new JScrollPane(historyArea), "Riwayat Ringkasan",
+                JOptionPane.INFORMATION_MESSAGE);
+    }
+
+    private void handleShowHelp() {
+        String helpText = "Panduan Penggunaan:\n" +
+                "1. Masukkan judul buku/artikel (opsional).\n" +
+                "2. Masukkan teks yang ingin diringkas di panel kiri atau gunakan Load File / Load Clipboard.\n" +
+                "3. Pilih Metode (Rule-based / API-based).\n" +
+                "4. Pilih Panjang ringkasan yang diinginkan.\n" +
+                "5. Klik tombol RINGKAS.\n" +
+                "6. Hasil akan muncul di panel kanan dan dapat disimpan ke TXT atau PDF.";
+        JOptionPane.showMessageDialog(this, helpText, "Bantuan", JOptionPane.INFORMATION_MESSAGE);
     }
 
     private void handleSaveTxt() {
@@ -206,11 +248,11 @@ public class MainFrame extends JFrame {
         }
         JFileChooser chooser = new JFileChooser();
         chooser.setSelectedFile(new File("ringkasan.txt"));
-        int result = chooser.showSaveDialog(this);
-        if (result == JFileChooser.APPROVE_OPTION) {
+        if (chooser.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
             try {
                 summaryFormatter.exportToTxt(currentSummary, chooser.getSelectedFile());
                 JOptionPane.showMessageDialog(this, "Ringkasan berhasil disimpan ke TXT.");
+                setStatus("Disimpan ke TXT: " + chooser.getSelectedFile().getName());
             } catch (IOException ex) {
                 showError(ex.getMessage());
             }
@@ -224,11 +266,11 @@ public class MainFrame extends JFrame {
         }
         JFileChooser chooser = new JFileChooser();
         chooser.setSelectedFile(new File("ringkasan.pdf"));
-        int result = chooser.showSaveDialog(this);
-        if (result == JFileChooser.APPROVE_OPTION) {
+        if (chooser.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
             try {
                 summaryFormatter.exportToPdf(currentSummary, chooser.getSelectedFile());
                 JOptionPane.showMessageDialog(this, "Ringkasan berhasil disimpan ke PDF.");
+                setStatus("Disimpan ke PDF: " + chooser.getSelectedFile().getName());
             } catch (IOException ex) {
                 showError(ex.getMessage());
             }
@@ -239,21 +281,26 @@ public class MainFrame extends JFrame {
         String input = JOptionPane.showInputDialog(this, "Masukkan API Key:", apiKey);
         if (input != null) {
             apiKey = input.trim();
-            if (apiKey.isEmpty()) {
-                JOptionPane.showMessageDialog(this, "API key dikosongkan.");
-            } else {
-                JOptionPane.showMessageDialog(this, "API key berhasil disimpan sementara.");
-            }
+            JOptionPane.showMessageDialog(this,
+                    apiKey.isEmpty() ? "API key dikosongkan." : "API key berhasil disimpan sementara.");
+            setStatus(apiKey.isEmpty() ? "API Key dihapus." : "API Key diset.");
         }
     }
 
     private void handleClear() {
+        titleField.setText("");
         inputArea.setText("");
         outputArea.setText("");
         currentSummary = "";
+        setStatus("Siap");
     }
 
     private void showError(String message) {
         JOptionPane.showMessageDialog(this, message, "Error", JOptionPane.ERROR_MESSAGE);
+        setStatus("Error terjadi.");
+    }
+    
+    private void setStatus(String message) {
+        statusLabel.setText(" Status: " + message);
     }
 }

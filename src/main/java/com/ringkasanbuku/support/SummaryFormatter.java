@@ -6,16 +6,13 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
-import org.apache.pdfbox.pdmodel.edit.PDPageContentStream;
+import org.apache.pdfbox.pdmodel.PDPageContentStream;
 import org.apache.pdfbox.pdmodel.font.PDType1Font;
-import org.apache.pdfbox.exceptions.COSVisitorException;
 
 public class SummaryFormatter {
-
     public String format(String summary) {
-        if (summary == null) {
+        if (summary == null)
             return "";
-        }
         return summary.trim().replaceAll("\\s+", " ");
     }
 
@@ -28,30 +25,22 @@ public class SummaryFormatter {
         try {
             PDPage page = new PDPage();
             document.addPage(page);
-
             PDPageContentStream contentStream = new PDPageContentStream(document, page);
             try {
                 contentStream.beginText();
                 contentStream.setFont(PDType1Font.HELVETICA, 12);
                 contentStream.moveTextPositionByAmount(50, 750);
-
                 String[] lines = wrapText(format(summary), 80);
                 for (int i = 0; i < lines.length; i++) {
-                    if (i > 0) {
+                    if (i > 0)
                         contentStream.moveTextPositionByAmount(0, -16);
-                    }
                     contentStream.drawString(lines[i]);
                 }
                 contentStream.endText();
             } finally {
                 contentStream.close();
             }
-
-            try {
-                document.save(file);
-            } catch (COSVisitorException e) {
-                throw new IOException("Gagal menyimpan PDF.", e);
-            }
+            document.save(file);
         } finally {
             document.close();
         }
@@ -61,7 +50,6 @@ public class SummaryFormatter {
         StringBuilder builder = new StringBuilder();
         String[] words = text.split(" ");
         int currentLength = 0;
-
         for (String word : words) {
             if (currentLength + word.length() + 1 > maxLength) {
                 builder.append('\n');

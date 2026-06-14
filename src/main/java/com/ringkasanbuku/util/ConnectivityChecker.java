@@ -5,7 +5,6 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 public class ConnectivityChecker {
-
     public boolean hasInternet() {
         try {
             HttpURLConnection connection = (HttpURLConnection) new URL("https://www.google.com").openConnection();
