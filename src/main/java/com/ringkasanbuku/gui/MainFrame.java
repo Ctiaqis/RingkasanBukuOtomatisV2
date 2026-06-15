@@ -28,8 +28,8 @@ public class MainFrame extends JFrame {
     private final JTextField titleField = new JTextField();
     private final JTextArea inputArea = new JTextArea();
     private final JTextArea outputArea = new JTextArea();
-    private final JComboBox<String> methodDropdown = new JComboBox<>(new String[] { "Cepat - Offline", "Otomatis - Disarankan" });
-    private final JComboBox<String> lengthDropdown = new JComboBox<>(new String[] { "Ringkasan Pendek", "Ringkasan Detail" });
+    private final JComboBox<String> methodDropdown = new JComboBox<>(new String[] { "Rule-based", "API-based" });
+    private final JComboBox<String> lengthDropdown = new JComboBox<>(new String[] { "Ringkasan Pendek - 2 kalimat", "Ringkasan Panjang - 4 kalimat" });
     private final JLabel statusLabelLeft = new JLabel("Status: Siap digunakan");
     private final JLabel statusLabelRight = new JLabel("0 karakter input \u2022 0 karakter output");
     
@@ -240,11 +240,11 @@ public class MainFrame extends JFrame {
         bottomPanel.setBackground(bgColor);
         bottomPanel.setBorder(BorderFactory.createEmptyBorder(8, 16, 12, 16));
 
-        methodDropdown.setSelectedItem("Cepat - Offline");
+        methodDropdown.setSelectedItem("Rule-based");
         methodDropdown.setFont(uiFont);
         methodDropdown.setBackground(Color.WHITE);
         
-        lengthDropdown.setSelectedItem("Ringkasan Pendek");
+        lengthDropdown.setSelectedItem("Ringkasan Pendek - 2 kalimat");
         lengthDropdown.setFont(uiFont);
         lengthDropdown.setBackground(Color.WHITE);
         
@@ -412,12 +412,12 @@ public class MainFrame extends JFrame {
 
         String uiMethod = (String) methodDropdown.getSelectedItem();
         String internalMethod = "Rule-based";
-        if ("Otomatis - Disarankan".equals(uiMethod)) {
+        if ("API-based".equals(uiMethod)) {
             internalMethod = "API-based";
         }
         
         String uiLength = (String) lengthDropdown.getSelectedItem();
-        int maxSentences = "Ringkasan Pendek".equals(uiLength) ? 3 : 6;
+        int maxSentences = "Ringkasan Pendek - 2 kalimat".equals(uiLength) ? 2 : 4;
 
         setStatus("Meringkas...");
         
@@ -440,7 +440,7 @@ public class MainFrame extends JFrame {
         outputArea.setText(currentSummary);
         outputArea.setForeground(textColor);
         
-        historyManager.addRecord(currentSummary);
+        historyManager.addRecord(inputText, currentSummary);
         
         saveTxtButton.setEnabled(true);
         savePdfButton.setEnabled(true);
@@ -481,19 +481,41 @@ public class MainFrame extends JFrame {
             }
         });
 
-        JTextArea previewArea = new JTextArea();
-        previewArea.setEditable(false);
-        previewArea.setLineWrap(true);
-        previewArea.setWrapStyleWord(true);
-        previewArea.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
-        previewArea.setFont(new Font("Consolas", Font.PLAIN, 14));
+        JTextArea inputPreviewArea = new JTextArea();
+        inputPreviewArea.setEditable(false);
+        inputPreviewArea.setLineWrap(true);
+        inputPreviewArea.setWrapStyleWord(true);
+        inputPreviewArea.setFont(new Font("Consolas", Font.PLAIN, 14));
+
+        JTextArea summaryPreviewArea = new JTextArea();
+        summaryPreviewArea.setEditable(false);
+        summaryPreviewArea.setLineWrap(true);
+        summaryPreviewArea.setWrapStyleWord(true);
+        summaryPreviewArea.setFont(new Font("Consolas", Font.PLAIN, 14));
+
+        JScrollPane inputScroll = new JScrollPane(inputPreviewArea);
+        inputScroll.setBorder(BorderFactory.createTitledBorder("Input Teks"));
+        
+        JScrollPane summaryScroll = new JScrollPane(summaryPreviewArea);
+        summaryScroll.setBorder(BorderFactory.createTitledBorder("Hasil Ringkasan"));
+
+        JSplitPane rightSplitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, inputScroll, summaryScroll);
+        rightSplitPane.setDividerLocation(150);
+        // Make it resizable
+        rightSplitPane.setResizeWeight(0.5);
 
         list.addListSelectionListener(e -> {
             if (!e.getValueIsAdjusting()) {
                 HistoryRecord selected = list.getSelectedValue();
                 if (selected != null) {
-                    previewArea.setText(selected.getSummary());
-                    previewArea.setCaretPosition(0);
+                    String input = selected.getInput() != null && !selected.getInput().trim().isEmpty() 
+                                   ? selected.getInput() 
+                                   : "(Tidak ada teks input)";
+                    inputPreviewArea.setText(input);
+                    inputPreviewArea.setCaretPosition(0);
+                    
+                    summaryPreviewArea.setText(selected.getSummary());
+                    summaryPreviewArea.setCaretPosition(0);
                 }
             }
         });
@@ -502,7 +524,7 @@ public class MainFrame extends JFrame {
             list.setSelectedIndex(0);
         }
 
-        JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, new JScrollPane(list), new JScrollPane(previewArea));
+        JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, new JScrollPane(list), rightSplitPane);
         splitPane.setDividerLocation(200);
         dialog.add(splitPane, BorderLayout.CENTER);
 
@@ -516,7 +538,8 @@ public class MainFrame extends JFrame {
             if (confirm == JOptionPane.YES_OPTION) {
                 historyManager.clearHistory();
                 listModel.clear();
-                previewArea.setText("");
+                inputPreviewArea.setText("");
+                summaryPreviewArea.setText("");
                 JOptionPane.showMessageDialog(dialog, "Seluruh riwayat berhasil dibersihkan.");
             }
         });

@@ -14,7 +14,7 @@ import java.util.regex.Pattern;
 
 public class SummaryHistoryManager {
     private static final Pattern RECORD_PATTERN = Pattern.compile(
-            "\\{\\s*\\\"id\\\":\\s*(\\d+),\\s*\\\"timestamp\\\":\\s*\\\"(.*?)\\\",\\s*\\\"summary\\\":\\s*\\\"(.*?)\\\"\\s*\\}",
+            "\\{\\s*\\\"id\\\":\\s*(\\d+),\\s*\\\"timestamp\\\":\\s*\\\"(.*?)\\\",\\s*\\\"summary\\\":\\s*\\\"(.*?)\\\"(?:,\\s*\\\"input\\\":\\s*\\\"(.*?)\\\")?\\s*\\}",
             Pattern.DOTALL);
 
     private final List<HistoryRecord> historyList = new ArrayList<>();
@@ -31,8 +31,12 @@ public class SummaryHistoryManager {
     }
 
     public void addRecord(String summary) {
+        addRecord("", summary);
+    }
+
+    public void addRecord(String input, String summary) {
         int newId = historyList.size() + 1;
-        historyList.add(new HistoryRecord(newId, LocalDateTime.now().format(formatter), summary));
+        historyList.add(new HistoryRecord(newId, LocalDateTime.now().format(formatter), summary, input));
         saveToFile();
     }
 
@@ -58,7 +62,8 @@ public class SummaryHistoryManager {
                 int id = Integer.parseInt(matcher.group(1));
                 String timestamp = unescape(matcher.group(2));
                 String summary = unescape(matcher.group(3));
-                historyList.add(new HistoryRecord(id, timestamp, summary));
+                String input = matcher.group(4) != null ? unescape(matcher.group(4)) : "";
+                historyList.add(new HistoryRecord(id, timestamp, summary, input));
             }
         } catch (IOException e) {
             System.err.println("Gagal memuat riwayat: " + e.getMessage());
@@ -71,7 +76,8 @@ public class SummaryHistoryManager {
             HistoryRecord record = historyList.get(i);
             json.append("  {\"id\": ").append(record.getId())
                     .append(", \"timestamp\": \"").append(escape(record.getTimestamp())).append("\"")
-                    .append(", \"summary\": \"").append(escape(record.getSummary())).append("\"}");
+                    .append(", \"summary\": \"").append(escape(record.getSummary())).append("\"")
+                    .append(", \"input\": \"").append(escape(record.getInput())).append("\"}");
             if (i < historyList.size() - 1) {
                 json.append(',');
             }

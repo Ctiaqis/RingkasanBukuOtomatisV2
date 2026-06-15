@@ -4,14 +4,20 @@ public class HistoryRecord {
     private int id;
     private String timestamp;
     private String summary;
+    private String input;
 
     public HistoryRecord() {
     }
 
     public HistoryRecord(int id, String timestamp, String summary) {
+        this(id, timestamp, summary, "");
+    }
+
+    public HistoryRecord(int id, String timestamp, String summary, String input) {
         this.id = id;
         this.timestamp = timestamp;
         this.summary = summary;
+        this.input = input;
     }
 
     public int getId() {
@@ -24,6 +30,10 @@ public class HistoryRecord {
 
     public String getSummary() {
         return summary;
+    }
+
+    public String getInput() {
+        return input;
     }
 
     @Override
