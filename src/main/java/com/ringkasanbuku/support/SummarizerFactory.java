@@ -13,11 +13,17 @@ public class SummarizerFactory {
     private final ConnectivityChecker connectivityChecker;
     private final TokenValidator tokenValidator;
 
+    private int maxSentences = 3;
+
     public SummarizerFactory(String preferredMethod, ConnectivityChecker connectivityChecker,
             TokenValidator tokenValidator) {
         this.preferredMethod = preferredMethod;
         this.connectivityChecker = connectivityChecker;
         this.tokenValidator = tokenValidator;
+    }
+    
+    public void setMaxSentences(int maxSentences) {
+        this.maxSentences = maxSentences;
     }
 
     public Summarizer create(String apiKey) {
@@ -27,6 +33,6 @@ public class SummarizerFactory {
         if ("API-based".equalsIgnoreCase(preferredMethod) && hasInternet && tokenValid) {
             return new ApiBasedSummarizer(apiKey);
         }
-        return new RuleBasedSummarizer();
+        return new RuleBasedSummarizer(maxSentences);
     }
 }

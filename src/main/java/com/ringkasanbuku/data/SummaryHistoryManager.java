@@ -40,6 +40,11 @@ public class SummaryHistoryManager {
         return Collections.unmodifiableList(historyList);
     }
 
+    public void clearHistory() {
+        historyList.clear();
+        saveToFile();
+    }
+
     private void loadFromFile() {
         if (!Files.exists(storageFile)) {
             return;

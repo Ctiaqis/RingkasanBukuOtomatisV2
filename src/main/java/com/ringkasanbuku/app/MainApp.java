@@ -35,6 +35,11 @@ public class MainApp {
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
+            try {
+                javax.swing.UIManager.setLookAndFeel(javax.swing.UIManager.getSystemLookAndFeelClassName());
+            } catch (Exception e) {
+                // ignore
+            }
             MainApp app = new MainApp();
             app.initialize();
             app.run();
