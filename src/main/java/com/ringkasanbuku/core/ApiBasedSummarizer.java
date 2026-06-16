@@ -1,6 +1,6 @@
 package com.ringkasanbuku.core;
 
-public class ApiBasedSummarizer implements Summarizer {
+public class ApiBasedSummarizer extends AbstractSummarizer {
     private final String apiKey;
 
     public ApiBasedSummarizer(String apiKey) {
@@ -8,13 +8,17 @@ public class ApiBasedSummarizer implements Summarizer {
     }
 
     @Override
-    public String summarize(String text) {
-        if (text == null || text.isBlank()) {
+    public String summarize(String text, int sentenceCount) throws Exception {
+        if (!validateInput(text)) {
             return "Teks kosong. Tidak ada ringkasan yang dapat dibuat.";
         }
 
-        RuleBasedSummarizer fallback = new RuleBasedSummarizer(4);
-        String baseSummary = fallback.summarize(text);
+        if (apiKey == null || apiKey.trim().isEmpty()) {
+            throw new Exception("API Key tidak valid atau kosong.");
+        }
+
+        RuleBasedSummarizer fallback = new RuleBasedSummarizer();
+        String baseSummary = fallback.summarize(text, sentenceCount);
         return "[API-based mode aktif dengan token valid] " + baseSummary;
     }
 

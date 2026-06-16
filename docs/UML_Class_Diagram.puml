@@ -6,6 +6,7 @@ package GUI {
     - inputArea
     - outputArea
     - methodDropdown
+    - lengthDropdown
   }
 }
 
@@ -18,17 +19,22 @@ package App {
 
 package Core {
   interface Summarizer {
-    + summarize(text) : String
+    + summarize(text: String, sentenceCount: int): String throws Exception
+  }
+
+  abstract class AbstractSummarizer {
+    + cleanText()
+    + splitSentences()
+    + validateInput()
   }
 
   class RuleBasedSummarizer {
-    - maxSentences : int
-    + summarize(text) : String
+    + summarize(text: String, sentenceCount: int): String throws Exception
   }
 
   class ApiBasedSummarizer {
     - apiKey : String
-    + summarize(text) : String
+    + summarize(text: String, sentenceCount: int): String throws Exception
   }
 }
 
@@ -39,9 +45,7 @@ package Support {
   }
 
   class SummarizerFactory {
-    - hasInternet : boolean
-    - tokenValid : boolean
-    + create(apiKey) : Summarizer
+    + create(method: String, apiKey: String) : Summarizer
   }
 
   class SummaryFormatter {
@@ -54,8 +58,12 @@ package Support {
 package Data {
   class HistoryRecord {
     - id : int
-    - timestamp : String
+    - title : String
+    - method : String
+    - summaryLength : String
+    - input : String
     - summary : String
+    - timestamp : String
   }
 
   class SummaryHistoryManager {
@@ -77,15 +85,15 @@ package Utility {
   }
 }
 
-RuleBasedSummarizer ..|> Summarizer
-ApiBasedSummarizer ..|> Summarizer
+AbstractSummarizer ..|> Summarizer
+RuleBasedSummarizer --|> AbstractSummarizer
+ApiBasedSummarizer --|> AbstractSummarizer
+
 MainApp --> Summarizer
 MainApp --> MainFrame
 MainApp --> SummaryHistoryManager
-TextInputHandler ..> RuleBasedSummarizer
 SummarizerFactory ..> Summarizer
 SummarizerFactory ..> ConnectivityChecker
 SummarizerFactory ..> TokenValidator
-SummaryFormatter ..> ApiBasedSummarizer
 SummaryHistoryManager o-- HistoryRecord
 @enduml

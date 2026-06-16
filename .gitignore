@@ -1,11 +1,7 @@
-/target/
+target/
 *.class
-*.log
 *.jar
-*.war
-*.zip
-.idea/
-.vscode/
-.history
-.DS_Store
 history.json
+.vscode/
+.env
+config.properties

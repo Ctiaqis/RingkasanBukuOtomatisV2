@@ -1,6 +1,5 @@
 package com.ringkasanbuku.core;
 
-import java.text.BreakIterator;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -13,31 +12,24 @@ import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-public class RuleBasedSummarizer implements Summarizer {
+public class RuleBasedSummarizer extends AbstractSummarizer {
     private static final Pattern WORD_SPLIT = Pattern.compile("[^\\p{L}\\p{N}]+", Pattern.UNICODE_CHARACTER_CLASS);
     private static final Set<String> STOPWORDS = new HashSet<>(Arrays.asList(
             "dan", "di", "ke", "dari", "yang", "untuk", "dengan", "atau", "pada", "adalah", "ini", "itu",
             "the", "a", "an", "of", "to", "in", "on", "for", "is", "are", "was", "were", "be", "as", "by"
     ));
 
-    private final int maxSentences;
-
     public RuleBasedSummarizer() {
-        this(3);
-    }
-
-    public RuleBasedSummarizer(int maxSentences) {
-        this.maxSentences = maxSentences;
     }
 
     @Override
-    public String summarize(String text) {
-        if (text == null || text.isBlank()) {
+    public String summarize(String text, int sentenceCount) throws Exception {
+        if (!validateInput(text)) {
             return "Teks kosong. Tidak ada ringkasan yang dapat dibuat.";
         }
 
         List<String> sentences = splitSentences(text);
-        if (sentences.size() <= maxSentences) {
+        if (sentences.size() <= sentenceCount) {
             return sentences.stream()
                     .map(String::trim)
                     .collect(Collectors.joining(" "));
@@ -57,28 +49,13 @@ public class RuleBasedSummarizer implements Summarizer {
 
         List<SentenceScore> bestSentences = scores.stream()
                 .sorted(Comparator.comparingDouble(SentenceScore::score).reversed())
-                .limit(Math.max(2, Math.min(maxSentences, scores.size())))
+                .limit(Math.max(2, Math.min(sentenceCount, scores.size())))
                 .sorted(Comparator.comparingInt(SentenceScore::index))
                 .toList();
 
         return bestSentences.stream()
                 .map(SentenceScore::sentence)
                 .collect(Collectors.joining(" "));
-    }
-
-    private List<String> splitSentences(String text) {
-        BreakIterator iterator = BreakIterator.getSentenceInstance(new Locale("id", "ID"));
-        iterator.setText(text);
-
-        List<String> sentences = new ArrayList<>();
-        int start = iterator.first();
-        for (int end = iterator.next(); end != BreakIterator.DONE; start = end, end = iterator.next()) {
-            String sentence = text.substring(start, end).trim();
-            if (!sentence.isEmpty()) {
-                sentences.add(sentence);
-            }
-        }
-        return sentences;
     }
 
     private Map<String, Integer> buildWordFrequency(String text) {

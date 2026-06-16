@@ -13,8 +13,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class SummaryHistoryManager {
+    // Regex adjustment for the added fields
     private static final Pattern RECORD_PATTERN = Pattern.compile(
-            "\\{\\s*\\\"id\\\":\\s*(\\d+),\\s*\\\"timestamp\\\":\\s*\\\"(.*?)\\\",\\s*\\\"summary\\\":\\s*\\\"(.*?)\\\"(?:,\\s*\\\"input\\\":\\s*\\\"(.*?)\\\")?\\s*\\}",
+            "\\{\\s*\\\"id\\\":\\s*(\\d+),\\s*\\\"title\\\":\\s*\\\"(.*?)\\\",\\s*\\\"method\\\":\\s*\\\"(.*?)\\\",\\s*\\\"summaryLength\\\":\\s*\\\"(.*?)\\\",\\s*\\\"input\\\":\\s*\\\"(.*?)\\\",\\s*\\\"summary\\\":\\s*\\\"(.*?)\\\",\\s*\\\"timestamp\\\":\\s*\\\"(.*?)\\\"\\s*\\}",
             Pattern.DOTALL);
 
     private final List<HistoryRecord> historyList = new ArrayList<>();
@@ -30,13 +31,9 @@ public class SummaryHistoryManager {
         loadFromFile();
     }
 
-    public void addRecord(String summary) {
-        addRecord("", summary);
-    }
-
-    public void addRecord(String input, String summary) {
+    public void addRecord(String title, String method, String summaryLength, String input, String summary) {
         int newId = historyList.size() + 1;
-        historyList.add(new HistoryRecord(newId, LocalDateTime.now().format(formatter), summary, input));
+        historyList.add(new HistoryRecord(newId, title, method, summaryLength, input, summary, LocalDateTime.now().format(formatter)));
         saveToFile();
     }
 
@@ -60,10 +57,13 @@ public class SummaryHistoryManager {
             historyList.clear();
             while (matcher.find()) {
                 int id = Integer.parseInt(matcher.group(1));
-                String timestamp = unescape(matcher.group(2));
-                String summary = unescape(matcher.group(3));
-                String input = matcher.group(4) != null ? unescape(matcher.group(4)) : "";
-                historyList.add(new HistoryRecord(id, timestamp, summary, input));
+                String title = unescape(matcher.group(2));
+                String method = unescape(matcher.group(3));
+                String summaryLength = unescape(matcher.group(4));
+                String input = unescape(matcher.group(5));
+                String summary = unescape(matcher.group(6));
+                String timestamp = unescape(matcher.group(7));
+                historyList.add(new HistoryRecord(id, title, method, summaryLength, input, summary, timestamp));
             }
         } catch (IOException e) {
             System.err.println("Gagal memuat riwayat: " + e.getMessage());
@@ -75,9 +75,12 @@ public class SummaryHistoryManager {
         for (int i = 0; i < historyList.size(); i++) {
             HistoryRecord record = historyList.get(i);
             json.append("  {\"id\": ").append(record.getId())
-                    .append(", \"timestamp\": \"").append(escape(record.getTimestamp())).append("\"")
+                    .append(", \"title\": \"").append(escape(record.getTitle())).append("\"")
+                    .append(", \"method\": \"").append(escape(record.getMethod())).append("\"")
+                    .append(", \"summaryLength\": \"").append(escape(record.getSummaryLength())).append("\"")
+                    .append(", \"input\": \"").append(escape(record.getInput())).append("\"")
                     .append(", \"summary\": \"").append(escape(record.getSummary())).append("\"")
-                    .append(", \"input\": \"").append(escape(record.getInput())).append("\"}");
+                    .append(", \"timestamp\": \"").append(escape(record.getTimestamp())).append("\"}");
             if (i < historyList.size() - 1) {
                 json.append(',');
             }

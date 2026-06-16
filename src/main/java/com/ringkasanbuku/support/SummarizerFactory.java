@@ -3,36 +3,13 @@ package com.ringkasanbuku.support;
 import com.ringkasanbuku.core.ApiBasedSummarizer;
 import com.ringkasanbuku.core.RuleBasedSummarizer;
 import com.ringkasanbuku.core.Summarizer;
-import com.ringkasanbuku.util.ConnectivityChecker;
-import com.ringkasanbuku.util.TokenValidator;
 
 public class SummarizerFactory {
-    private boolean hasInternet;
-    private boolean tokenValid;
-    private final String preferredMethod;
-    private final ConnectivityChecker connectivityChecker;
-    private final TokenValidator tokenValidator;
 
-    private int maxSentences = 3;
-
-    public SummarizerFactory(String preferredMethod, ConnectivityChecker connectivityChecker,
-            TokenValidator tokenValidator) {
-        this.preferredMethod = preferredMethod;
-        this.connectivityChecker = connectivityChecker;
-        this.tokenValidator = tokenValidator;
-    }
-    
-    public void setMaxSentences(int maxSentences) {
-        this.maxSentences = maxSentences;
-    }
-
-    public Summarizer create(String apiKey) {
-        hasInternet = connectivityChecker.hasInternet();
-        tokenValid = tokenValidator.isValid(apiKey);
-
-        if ("API-based".equalsIgnoreCase(preferredMethod) && hasInternet && tokenValid) {
+    public Summarizer create(String method, String apiKey) {
+        if ("API-Based - Online".equals(method)) {
             return new ApiBasedSummarizer(apiKey);
         }
-        return new RuleBasedSummarizer(maxSentences);
+        return new RuleBasedSummarizer();
     }
 }

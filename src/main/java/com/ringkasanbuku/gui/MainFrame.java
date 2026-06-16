@@ -28,8 +28,8 @@ public class MainFrame extends JFrame {
     private final JTextField titleField = new JTextField();
     private final JTextArea inputArea = new JTextArea();
     private final JTextArea outputArea = new JTextArea();
-    private final JComboBox<String> methodDropdown = new JComboBox<>(new String[] { "Rule-based", "API-based" });
-    private final JComboBox<String> lengthDropdown = new JComboBox<>(new String[] { "Ringkasan Pendek - 2 kalimat", "Ringkasan Panjang - 4 kalimat" });
+    private final JComboBox<String> methodDropdown = new JComboBox<>(new String[] { "Rule-Based - Offline", "API-Based - Online" });
+    private final JComboBox<String> lengthDropdown = new JComboBox<>(new String[] { "Ringkasan Pendek - 2 Kalimat", "Ringkasan Detail - 4 Kalimat" });
     private final JLabel statusLabelLeft = new JLabel("Status: Siap digunakan");
     private final JLabel statusLabelRight = new JLabel("0 karakter input \u2022 0 karakter output");
     
@@ -240,11 +240,11 @@ public class MainFrame extends JFrame {
         bottomPanel.setBackground(bgColor);
         bottomPanel.setBorder(BorderFactory.createEmptyBorder(8, 16, 12, 16));
 
-        methodDropdown.setSelectedItem("Rule-based");
+        methodDropdown.setSelectedItem("Rule-Based - Offline");
         methodDropdown.setFont(uiFont);
         methodDropdown.setBackground(Color.WHITE);
         
-        lengthDropdown.setSelectedItem("Ringkasan Pendek - 2 kalimat");
+        lengthDropdown.setSelectedItem("Ringkasan Pendek - 2 Kalimat");
         lengthDropdown.setFont(uiFont);
         lengthDropdown.setBackground(Color.WHITE);
         
@@ -265,7 +265,7 @@ public class MainFrame extends JFrame {
         savePdfButton.setMargin(new Insets(4, 12, 4, 12));
         savePdfButton.setEnabled(false);
 
-        JLabel methodLabel = new JLabel("Pilihan Ringkasan:");
+        JLabel methodLabel = new JLabel("Metode Ringkasan:");
         methodLabel.setFont(uiFont);
         JLabel lengthLabel = new JLabel("Panjang Ringkasan:");
         lengthLabel.setFont(uiFont);
@@ -411,36 +411,56 @@ public class MainFrame extends JFrame {
         }
 
         String uiMethod = (String) methodDropdown.getSelectedItem();
-        String internalMethod = "Rule-based";
-        if ("API-based".equals(uiMethod)) {
-            internalMethod = "API-based";
-        }
-        
         String uiLength = (String) lengthDropdown.getSelectedItem();
-        int maxSentences = "Ringkasan Pendek - 2 kalimat".equals(uiLength) ? 2 : 4;
+        int sentenceCount = "Ringkasan Pendek - 2 Kalimat".equals(uiLength) ? 2 : 4;
 
         setStatus("Meringkas...");
         
         String apiKeyFromEnv = System.getenv("API_KEY");
         if (apiKeyFromEnv == null) apiKeyFromEnv = "";
 
-        SummarizerFactory factory = new SummarizerFactory(internalMethod, connectivityChecker, tokenValidator);
-        factory.setMaxSentences(maxSentences);
-        Summarizer summarizer = factory.create(apiKeyFromEnv);
+        SummarizerFactory factory = new SummarizerFactory();
+        Summarizer summarizer;
+        String methodUsed = "";
+        String summary = "";
 
-        if ("API-based".equals(internalMethod) && !(summarizer instanceof ApiBasedSummarizer)) {
-            JOptionPane.showMessageDialog(this,
-                    "API-based tidak dapat digunakan. Sistem otomatis menggunakan Rule-based.", "Info Fallback",
-                    JOptionPane.INFORMATION_MESSAGE);
+        if ("Rule-Based - Offline".equals(uiMethod)) {
+            summarizer = factory.create(uiMethod, apiKeyFromEnv);
+            try {
+                summary = summarizer.summarize(inputText, sentenceCount);
+                methodUsed = "Rule-Based - Offline";
+            } catch (Exception e) {
+                showError("Gagal meringkas: " + e.getMessage());
+                return;
+            }
+        } else {
+            summarizer = factory.create(uiMethod, apiKeyFromEnv);
+            try {
+                summary = summarizer.summarize(inputText, sentenceCount);
+                methodUsed = "API-Based - Online";
+            } catch (Exception e) {
+                JOptionPane.showMessageDialog(this,
+                        "API-Based gagal digunakan. Sistem akan menggunakan Rule-Based - Offline.", "Info Fallback",
+                        JOptionPane.INFORMATION_MESSAGE);
+                summarizer = factory.create("Rule-Based - Offline", "");
+                try {
+                    summary = summarizer.summarize(inputText, sentenceCount);
+                    methodUsed = "Rule-Based - Offline (Fallback)";
+                } catch (Exception ex) {
+                    showError("Gagal meringkas: " + ex.getMessage());
+                    return;
+                }
+            }
         }
 
-        String summary = summarizer.summarize(inputText);
         currentSummary = summaryFormatter.format(summary);
         
         outputArea.setText(currentSummary);
         outputArea.setForeground(textColor);
         
-        historyManager.addRecord(inputText, currentSummary);
+        String title = titleField.getText().trim();
+        if (title.equals(TITLE_PLACEHOLDER)) title = "";
+        historyManager.addRecord(title, methodUsed, uiLength, inputText, currentSummary);
         
         saveTxtButton.setEnabled(true);
         savePdfButton.setEnabled(true);
@@ -475,7 +495,8 @@ public class MainFrame extends JFrame {
                 super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
                 if (value instanceof HistoryRecord) {
                     HistoryRecord hr = (HistoryRecord) value;
-                    setText("ID: " + hr.getId() + " - " + hr.getTimestamp());
+                    String titleDisp = (hr.getTitle() != null && !hr.getTitle().isEmpty()) ? hr.getTitle() : "Tanpa Judul";
+                    setText(titleDisp + " | " + hr.getMethod() + " | " + hr.getSummaryLength() + " | " + hr.getTimestamp());
                 }
                 return this;
             }

@@ -2,42 +2,36 @@ package com.ringkasanbuku.data;
 
 public class HistoryRecord {
     private int id;
-    private String timestamp;
-    private String summary;
+    private String title;
+    private String method;
+    private String summaryLength;
     private String input;
+    private String summary;
+    private String timestamp;
 
     public HistoryRecord() {
     }
 
-    public HistoryRecord(int id, String timestamp, String summary) {
-        this(id, timestamp, summary, "");
-    }
-
-    public HistoryRecord(int id, String timestamp, String summary, String input) {
+    public HistoryRecord(int id, String title, String method, String summaryLength, String input, String summary, String timestamp) {
         this.id = id;
-        this.timestamp = timestamp;
-        this.summary = summary;
+        this.title = title;
+        this.method = method;
+        this.summaryLength = summaryLength;
         this.input = input;
+        this.summary = summary;
+        this.timestamp = timestamp;
     }
 
-    public int getId() {
-        return id;
-    }
-
-    public String getTimestamp() {
-        return timestamp;
-    }
-
-    public String getSummary() {
-        return summary;
-    }
-
-    public String getInput() {
-        return input;
-    }
+    public int getId() { return id; }
+    public String getTitle() { return title; }
+    public String getMethod() { return method; }
+    public String getSummaryLength() { return summaryLength; }
+    public String getInput() { return input; }
+    public String getSummary() { return summary; }
+    public String getTimestamp() { return timestamp; }
 
     @Override
     public String toString() {
-        return id + " | " + timestamp + " | " + summary;
+        return id + " | " + timestamp + " | " + title + " | " + method + " | " + summaryLength;
     }
 }
