@@ -30,7 +30,7 @@ public class ApiBasedSummarizer extends AbstractSummarizer {
 
         try {
             System.out.println("Akan memanggil OpenRouterClient");
-            return client.summarize(text);
+            return client.summarize(text, sentenceCount);
         } catch (Exception e) {
             System.out.println(
                 "API gagal, menggunakan RuleBasedSummarizer..."
