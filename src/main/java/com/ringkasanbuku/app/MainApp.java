@@ -1,12 +1,13 @@
 package com.ringkasanbuku.app;
 
+import javax.swing.SwingUtilities;
+
 import com.ringkasanbuku.data.SummaryHistoryManager;
 import com.ringkasanbuku.gui.MainFrame;
 import com.ringkasanbuku.support.SummaryFormatter;
 import com.ringkasanbuku.support.TextInputHandler;
 import com.ringkasanbuku.util.ConnectivityChecker;
 import com.ringkasanbuku.util.TokenValidator;
-import javax.swing.SwingUtilities;
 
 public class MainApp {
     private MainFrame mainFrame;

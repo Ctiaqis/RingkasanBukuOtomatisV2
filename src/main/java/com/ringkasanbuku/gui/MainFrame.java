@@ -1,24 +1,50 @@
 package com.ringkasanbuku.gui;
 
-import com.ringkasanbuku.core.ApiBasedSummarizer;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.Font;
+import java.awt.GraphicsEnvironment;
+import java.awt.GridLayout;
+import java.awt.Insets;
+import java.io.File;
+import java.io.IOException;
+import java.util.List;
+
+import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.DefaultListCellRenderer;
+import javax.swing.DefaultListModel;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JDialog;
+import javax.swing.JFileChooser;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JList;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JSplitPane;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
+import javax.swing.ListSelectionModel;
+import javax.swing.border.TitledBorder;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+import javax.swing.filechooser.FileNameExtensionFilter;
+
 import com.ringkasanbuku.core.Summarizer;
 import com.ringkasanbuku.data.HistoryRecord;
 import com.ringkasanbuku.data.SummaryHistoryManager;
 import com.ringkasanbuku.support.SummarizerFactory;
 import com.ringkasanbuku.support.SummaryFormatter;
 import com.ringkasanbuku.support.TextInputHandler;
+import com.ringkasanbuku.util.ConfigLoader;
 import com.ringkasanbuku.util.ConnectivityChecker;
 import com.ringkasanbuku.util.TokenValidator;
-
-import java.awt.*;
-import java.io.File;
-import java.io.IOException;
-import java.util.List;
-import javax.swing.*;
-import javax.swing.border.TitledBorder;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
-import javax.swing.filechooser.FileNameExtensionFilter;
 
 public class MainFrame extends JFrame {
     private static final String TITLE_PLACEHOLDER = "Masukkan judul buku atau artikel (opsional)";
@@ -415,9 +441,14 @@ public class MainFrame extends JFrame {
         int sentenceCount = "Ringkasan Pendek - 2 Kalimat".equals(uiLength) ? 2 : 4;
 
         setStatus("Meringkas...");
+
+        System.out.println("Method dipilih = " + uiMethod);
         
-        String apiKeyFromEnv = System.getenv("API_KEY");
-        if (apiKeyFromEnv == null) apiKeyFromEnv = "";
+        String apiKeyFromEnv = ConfigLoader.getOpenRouterApiKey();
+
+        if (apiKeyFromEnv == null) {
+            apiKeyFromEnv = "";
+        }
 
         SummarizerFactory factory = new SummarizerFactory();
         Summarizer summarizer;
@@ -467,6 +498,8 @@ public class MainFrame extends JFrame {
         
         setStatus("Selesai meringkas teks.");
         updateState();
+
+        System.out.println("TOKEN = " + ConfigLoader.getOpenRouterApiKey());
     }
 
     private void handleShowHistory() {
