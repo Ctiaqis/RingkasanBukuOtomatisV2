@@ -19,7 +19,7 @@ public class OpenRouterClient {
     public String summarize(String text) throws Exception {
 
         String prompt =
-            "Ringkas teks berikut menjadi 3-5 kalimat:\n\n" + text;
+            "Ringkas teks berikut menjadi 2-5 kalimat:\n\n" + text;
 
         String body = """
         {
