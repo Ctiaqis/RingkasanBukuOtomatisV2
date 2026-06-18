@@ -6,8 +6,7 @@ import com.ringkasanbuku.data.SummaryHistoryManager;
 import com.ringkasanbuku.gui.MainFrame;
 import com.ringkasanbuku.support.SummaryFormatter;
 import com.ringkasanbuku.support.TextInputHandler;
-import com.ringkasanbuku.util.ConnectivityChecker;
-import com.ringkasanbuku.util.TokenValidator;
+
 
 public class MainApp {
     private MainFrame mainFrame;
@@ -16,15 +15,10 @@ public class MainApp {
         TextInputHandler textInputHandler = new TextInputHandler();
         SummaryFormatter summaryFormatter = new SummaryFormatter();
         SummaryHistoryManager historyManager = new SummaryHistoryManager();
-        ConnectivityChecker connectivityChecker = new ConnectivityChecker();
-        TokenValidator tokenValidator = new TokenValidator();
-
         mainFrame = new MainFrame(
                 textInputHandler,
                 summaryFormatter,
-                historyManager,
-                connectivityChecker,
-                tokenValidator);
+                historyManager);
     }
 
     public void run() {

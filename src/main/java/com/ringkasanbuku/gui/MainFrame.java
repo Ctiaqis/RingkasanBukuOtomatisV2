@@ -43,8 +43,8 @@ import com.ringkasanbuku.support.SummarizerFactory;
 import com.ringkasanbuku.support.SummaryFormatter;
 import com.ringkasanbuku.support.TextInputHandler;
 import com.ringkasanbuku.util.ConfigLoader;
-import com.ringkasanbuku.util.ConnectivityChecker;
-import com.ringkasanbuku.util.TokenValidator;
+
+
 
 public class MainFrame extends JFrame {
     private static final String TITLE_PLACEHOLDER = "Masukkan judul buku atau artikel (opsional)";
@@ -66,8 +66,6 @@ public class MainFrame extends JFrame {
     private final TextInputHandler textInputHandler;
     private final SummaryFormatter summaryFormatter;
     private final SummaryHistoryManager historyManager;
-    private final ConnectivityChecker connectivityChecker;
-    private final TokenValidator tokenValidator;
 
     private String currentSummary = "";
     
@@ -75,13 +73,10 @@ public class MainFrame extends JFrame {
     private final Color primaryBlue = new Color(0, 120, 215);
 
     public MainFrame(TextInputHandler textInputHandler, SummaryFormatter summaryFormatter,
-            SummaryHistoryManager historyManager, ConnectivityChecker connectivityChecker,
-            TokenValidator tokenValidator) {
+            SummaryHistoryManager historyManager) {
         this.textInputHandler = textInputHandler;
         this.summaryFormatter = summaryFormatter;
         this.historyManager = historyManager;
-        this.connectivityChecker = connectivityChecker;
-        this.tokenValidator = tokenValidator;
 
         setTitle("Aplikasi Ringkasan Buku Otomatis");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
