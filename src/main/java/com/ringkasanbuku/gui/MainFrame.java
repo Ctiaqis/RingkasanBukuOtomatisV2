@@ -55,7 +55,7 @@ public class MainFrame extends JFrame {
     private final JTextArea inputArea = new JTextArea();
     private final JTextArea outputArea = new JTextArea();
     private final JComboBox<String> methodDropdown = new JComboBox<>(new String[] { "Rule-Based - Offline", "API-Based - Online" });
-    private final JComboBox<String> lengthDropdown = new JComboBox<>(new String[] { "Ringkasan Pendek - 2 Kalimat", "Ringkasan Detail - 4 Kalimat" });
+    private final JComboBox<String> lengthDropdown = new JComboBox<>(new String[] { "Biasa", "Medium", "Tinggi" });
     private final JLabel statusLabelLeft = new JLabel("Status: Siap digunakan");
     private final JLabel statusLabelRight = new JLabel("0 karakter input \u2022 0 karakter output");
     
@@ -265,7 +265,7 @@ public class MainFrame extends JFrame {
         methodDropdown.setFont(uiFont);
         methodDropdown.setBackground(Color.WHITE);
         
-        lengthDropdown.setSelectedItem("Ringkasan Pendek - 2 Kalimat");
+        lengthDropdown.setSelectedItem("Biasa");
         lengthDropdown.setFont(uiFont);
         lengthDropdown.setBackground(Color.WHITE);
         
@@ -433,7 +433,20 @@ public class MainFrame extends JFrame {
 
         String uiMethod = (String) methodDropdown.getSelectedItem();
         String uiLength = (String) lengthDropdown.getSelectedItem();
-        int sentenceCount = "Ringkasan Pendek - 2 Kalimat".equals(uiLength) ? 2 : 4;
+        
+        String[] sentences = inputText.split("(?<=[.!?])\\s+");
+        int totalSentences = sentences.length;
+        if (totalSentences == 0) totalSentences = 1;
+
+        int sentenceCount = 1;
+        if ("Biasa".equals(uiLength)) {
+            sentenceCount = (int) Math.max(1, Math.round(totalSentences * 0.20));
+        } else if ("Medium".equals(uiLength)) {
+            sentenceCount = (int) Math.max(1, Math.round(totalSentences * 0.35));
+        } else if ("Tinggi".equals(uiLength)) {
+            sentenceCount = (int) Math.max(1, Math.round(totalSentences * 0.50));
+        }
+        sentenceCount = Math.min(sentenceCount, totalSentences);
 
         setStatus("Meringkas...");
 
@@ -615,7 +628,7 @@ public class MainFrame extends JFrame {
             return;
         }
         JFileChooser chooser = new JFileChooser();
-        chooser.setSelectedFile(new File("ringkasan.txt"));
+        chooser.setSelectedFile(new File(generateExportFileName("txt")));
         if (chooser.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
             try {
                 summaryFormatter.exportToTxt(currentSummary, chooser.getSelectedFile());
@@ -633,7 +646,7 @@ public class MainFrame extends JFrame {
             return;
         }
         JFileChooser chooser = new JFileChooser();
-        chooser.setSelectedFile(new File("ringkasan.pdf"));
+        chooser.setSelectedFile(new File(generateExportFileName("pdf")));
         if (chooser.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
             try {
                 summaryFormatter.exportToPdf(currentSummary, chooser.getSelectedFile());
@@ -643,6 +656,34 @@ public class MainFrame extends JFrame {
                 showError(ex.getMessage());
             }
         }
+    }
+
+    private String generateExportFileName(String extension) {
+        String title = titleField.getText().trim();
+        if (title.isEmpty() || title.equals(TITLE_PLACEHOLDER)) {
+            title = "Ringkasan_Buku";
+        }
+        
+        String method = (String) methodDropdown.getSelectedItem();
+        if (method != null) {
+            method = method.contains("Rule-Based") ? "RuleBased" : "APIBased";
+        } else {
+            method = "RuleBased";
+        }
+        
+        String length = (String) lengthDropdown.getSelectedItem();
+        if (length == null) {
+            length = "Medium";
+        }
+        
+        java.time.LocalDateTime now = java.time.LocalDateTime.now();
+        java.time.format.DateTimeFormatter dtf = java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm");
+        String dateTime = dtf.format(now);
+        
+        String rawName = title + "_" + method + "_" + length + "_" + dateTime;
+        String safeName = rawName.replaceAll("[^a-zA-Z0-9\\-_]", "_").replaceAll("_+", "_");
+        
+        return safeName + "." + extension;
     }
 
     private void handleClear() {

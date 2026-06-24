@@ -20,13 +20,17 @@ public class OpenRouterClient {
 
         String prompt =
             """
-            Ringkas teks berikut.
+            Buat ringkasan yang detail dan informatif dari teks berikut.
 
             Aturan:
-            - Gunakan tepat %d kalimat.
-            - Jangan lebih.
-            - Jangan kurang.
-            - Gunakan Bahasa Indonesia.
+            - Gunakan tepat %d kalimat. Jangan lebih dan jangan kurang.
+            - Pastikan ringkasan mencakup poin-poin penting berikut (jika ada dalam teks):
+              1. Topik utama atau gagasan inti.
+              2. Penjelasan pendukung yang relevan.
+              3. Manfaat atau keunggulan.
+              4. Masalah, tantangan, atau kekurangan.
+              5. Kesimpulan akhir.
+            - Gunakan Bahasa Indonesia yang baik dan benar.
 
             Teks:
             %s
