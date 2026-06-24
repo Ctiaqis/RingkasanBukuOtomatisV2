@@ -1,25 +1,27 @@
 package com.ringkasanbuku.core;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+// Import bawaan Lucene
+import org.apache.lucene.analysis.CharArraySet;
+import org.apache.lucene.analysis.en.EnglishAnalyzer;
+import org.apache.lucene.analysis.id.IndonesianAnalyzer;
+
 public class RuleBasedSummarizer extends AbstractSummarizer {
     private static final Pattern WORD_SPLIT = Pattern.compile("[^\\p{L}\\p{N}]+", Pattern.UNICODE_CHARACTER_CLASS);
-    private static final Set<String> STOPWORDS = new HashSet<>(Arrays.asList(
-            "dan", "di", "ke", "dari", "yang", "untuk", "dengan", "atau", "pada", "adalah", "ini", "itu",
-            "the", "a", "an", "of", "to", "in", "on", "for", "is", "are", "was", "were", "be", "as", "by"
-    ));
 
-    public RuleBasedSummarizer() {
+    private static final CharArraySet STOPWORDS;
+    static {
+        STOPWORDS = new CharArraySet(200, true);
+        STOPWORDS.addAll(EnglishAnalyzer.getDefaultStopSet());
+        STOPWORDS.addAll(IndonesianAnalyzer.getDefaultStopSet());
     }
 
     @Override
