@@ -10,33 +10,38 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class OpenRouterClient {
 
-    private final String apiKey;
+  private final String apiKey;
 
-    public OpenRouterClient(String apiKey) {
-        this.apiKey = apiKey;
-    }
+  public OpenRouterClient(String apiKey) {
+    this.apiKey = apiKey;
+  }
 
-    public String summarize(String text, int sentenceCount) throws Exception {
+  public String summarize(String text, String lengthOption) throws Exception {
 
-        String prompt =
-            """
-            Buat ringkasan yang detail dan informatif dari teks berikut.
+    String percentage = "35%";
+    if ("Biasa".equalsIgnoreCase(lengthOption))
+      percentage = "20%";
+    else if ("Tinggi".equalsIgnoreCase(lengthOption))
+      percentage = "50%";
 
-            Aturan:
-            - Gunakan tepat %d kalimat. Jangan lebih dan jangan kurang.
-            - Pastikan ringkasan mencakup poin-poin penting berikut (jika ada dalam teks):
-              1. Topik utama atau gagasan inti.
-              2. Penjelasan pendukung yang relevan.
-              3. Manfaat atau keunggulan.
-              4. Masalah, tantangan, atau kekurangan.
-              5. Kesimpulan akhir.
-            - Gunakan Bahasa Indonesia yang baik dan benar.
+    String prompt = """
+        Buat ringkasan yang detail dan informatif dari teks berikut.
 
-            Teks:
-            %s
-            """.formatted(sentenceCount, text);
+        Aturan:
+        - Buatlah ringkasan dengan panjang sekitar %s dari teks asli.
+        - Pastikan ringkasan mencakup poin-poin penting berikut (jika ada dalam teks):
+          1. Topik utama atau gagasan inti.
+          2. Penjelasan pendukung yang relevan.
+          3. Manfaat atau keunggulan.
+          4. Masalah, tantangan, atau kekurangan.
+          5. Kesimpulan akhir.
+        - Catatan penting, jangan tampilkan ketentuannya.
 
-        String body = """
+        Teks:
+        %s
+        """.formatted(percentage, text);
+
+    String body = """
         {
           "model": "google/gemma-3-4b-it",
           "messages": [
@@ -47,38 +52,34 @@ public class OpenRouterClient {
           ]
         }
         """.formatted(
-                prompt.replace("\"", "\\\"")
-                      .replace("\n", "\\n")
-        );
+        prompt.replace("\"", "\\\"")
+            .replace("\n", "\\n"));
 
-        System.out.println("Authorization = Bearer " + apiKey);
+    System.out.println("Authorization = Bearer " + apiKey);
 
-       HttpRequest request = HttpRequest.newBuilder()
-         .uri(URI.create("https://openrouter.ai/api/v1/chat/completions"))
-         .header("Authorization", "Bearer " + apiKey)
-         .header("Content-Type", "application/json")
-         .POST(HttpRequest.BodyPublishers.ofString(body))
-         .build();
+    HttpRequest request = HttpRequest.newBuilder()
+        .uri(URI.create("https://openrouter.ai/api/v1/chat/completions"))
+        .header("Authorization", "Bearer " + apiKey)
+        .header("Content-Type", "application/json")
+        .POST(HttpRequest.BodyPublishers.ofString(body))
+        .build();
 
-        HttpClient client =
-                HttpClient.newHttpClient();
+    HttpClient client = HttpClient.newHttpClient();
 
-        HttpResponse<String> response =
-                client.send(request,
-                        HttpResponse.BodyHandlers.ofString());
+    HttpResponse<String> response = client.send(request,
+        HttpResponse.BodyHandlers.ofString());
 
+    ObjectMapper mapper = new ObjectMapper();
 
-        ObjectMapper mapper = new ObjectMapper();
+    JsonNode root = mapper.readTree(response.body());
 
-        JsonNode root = mapper.readTree(response.body());
+    String summary = root
+        .get("choices")
+        .get(0)
+        .get("message")
+        .get("content")
+        .asText();
 
-        String summary = root
-                .get("choices")
-                .get(0)
-                .get("message")
-                .get("content")
-                .asText();
-
-        return summary;
-    }
+    return summary;
+  }
 }

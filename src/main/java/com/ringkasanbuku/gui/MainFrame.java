@@ -473,7 +473,7 @@ public class MainFrame extends JFrame {
         if ("Rule-Based - Offline".equals(uiMethod)) {
             summarizer = factory.create(uiMethod, apiKeyFromEnv);
             try {
-                summary = summarizer.summarize(inputText, sentenceCount);
+                summary = summarizer.summarize(inputText, sentenceCount, uiLength);
                 methodUsed = "Rule-Based - Offline";
             } catch (Exception e) {
                 showError("Gagal meringkas: " + e.getMessage());
@@ -482,7 +482,7 @@ public class MainFrame extends JFrame {
         } else {
             summarizer = factory.create(uiMethod, apiKeyFromEnv);
             try {
-                summary = summarizer.summarize(inputText, sentenceCount);
+                summary = summarizer.summarize(inputText, sentenceCount, uiLength);
                 methodUsed = "API-Based - Online";
             } catch (Exception e) {
                 JOptionPane.showMessageDialog(this,
@@ -490,7 +490,7 @@ public class MainFrame extends JFrame {
                         JOptionPane.INFORMATION_MESSAGE);
                 summarizer = factory.create("Rule-Based - Offline", "");
                 try {
-                    summary = summarizer.summarize(inputText, sentenceCount);
+                    summary = summarizer.summarize(inputText, sentenceCount, uiLength);
                     methodUsed = "Rule-Based - Offline (Fallback)";
                 } catch (Exception ex) {
                     showError("Gagal meringkas: " + ex.getMessage());

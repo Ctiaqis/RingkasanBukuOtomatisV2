@@ -25,7 +25,7 @@ public class RuleBasedSummarizer extends AbstractSummarizer {
     }
 
     @Override
-    public String summarize(String text, int sentenceCount) throws Exception {
+    public String summarize(String text, int sentenceCount, String lengthOption) throws Exception {
         if (!validateInput(text)) {
             return "Teks kosong. Tidak ada ringkasan yang dapat dibuat.";
         }

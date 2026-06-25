@@ -14,7 +14,7 @@ public class ApiBasedSummarizer extends AbstractSummarizer {
     }
 
     @Override
-    public String summarize(String text, int sentenceCount) throws Exception {
+    public String summarize(String text, int sentenceCount, String lengthOption) throws Exception {
         
         System.out.println("Masuk ApiBasedSummarizer");
 
@@ -30,7 +30,7 @@ public class ApiBasedSummarizer extends AbstractSummarizer {
 
         try {
             System.out.println("Akan memanggil OpenRouterClient");
-            return client.summarize(text, sentenceCount);
+            return client.summarize(text, lengthOption);
         } catch (Exception e) {
             System.out.println(
                 "API gagal, menggunakan RuleBasedSummarizer..."
@@ -38,7 +38,7 @@ public class ApiBasedSummarizer extends AbstractSummarizer {
             e.printStackTrace();
             RuleBasedSummarizer fallback =
                     new RuleBasedSummarizer();
-            return fallback.summarize(text, sentenceCount);
+            return fallback.summarize(text, sentenceCount, lengthOption);
         }
     }
 
