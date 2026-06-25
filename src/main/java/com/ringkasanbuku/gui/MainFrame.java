@@ -44,8 +44,6 @@ import com.ringkasanbuku.support.SummaryFormatter;
 import com.ringkasanbuku.support.TextInputHandler;
 import com.ringkasanbuku.util.ConfigLoader;
 
-
-
 public class MainFrame extends JFrame {
     private static final String TITLE_PLACEHOLDER = "Masukkan judul buku atau artikel (opsional)";
     private static final String INPUT_PLACEHOLDER = "Tempel teks buku atau artikel di sini atau gunakan tombol Upload TXT/PDF...";
@@ -54,11 +52,12 @@ public class MainFrame extends JFrame {
     private final JTextField titleField = new JTextField();
     private final JTextArea inputArea = new JTextArea();
     private final JTextArea outputArea = new JTextArea();
-    private final JComboBox<String> methodDropdown = new JComboBox<>(new String[] { "Rule-Based - Offline", "API-Based - Online" });
+    private final JComboBox<String> methodDropdown = new JComboBox<>(
+            new String[] { "Rule-Based - Offline", "API-Based - Online" });
     private final JComboBox<String> lengthDropdown = new JComboBox<>(new String[] { "Biasa", "Medium", "Tinggi" });
     private final JLabel statusLabelLeft = new JLabel("Status: Siap digunakan");
     private final JLabel statusLabelRight = new JLabel("0 karakter input \u2022 0 karakter output");
-    
+
     private final JButton summarizeButton = new JButton("RINGKAS");
     private final JButton saveTxtButton = new JButton("Simpan TXT");
     private final JButton savePdfButton = new JButton("Simpan PDF");
@@ -68,7 +67,7 @@ public class MainFrame extends JFrame {
     private final SummaryHistoryManager historyManager;
 
     private String currentSummary = "";
-    
+
     private final Color textColor = new Color(50, 50, 50);
     private final Color primaryBlue = new Color(0, 120, 215);
 
@@ -92,15 +91,15 @@ public class MainFrame extends JFrame {
     private void initComponents() {
         Color bgColor = new Color(245, 245, 245);
         Color cardColor = Color.WHITE;
-        
+
         Font uiFont = new Font("Segoe UI", Font.PLAIN, 14);
         Font uiFontBold = new Font("Segoe UI", Font.BOLD, 14);
         Font textFont = new Font("Consolas", Font.PLAIN, 14);
-        
+
         if (!GraphicsEnvironment.getLocalGraphicsEnvironment().getAvailableFontFamilyNames()[0].equals("Segoe UI")) {
-             uiFont = new Font("SansSerif", Font.PLAIN, 14);
-             uiFontBold = new Font("SansSerif", Font.BOLD, 14);
-             textFont = new Font("Monospaced", Font.PLAIN, 14);
+            uiFont = new Font("SansSerif", Font.PLAIN, 14);
+            uiFontBold = new Font("SansSerif", Font.BOLD, 14);
+            textFont = new Font("Monospaced", Font.PLAIN, 14);
         }
 
         getContentPane().setBackground(bgColor);
@@ -115,14 +114,13 @@ public class MainFrame extends JFrame {
         JLabel titleLabel = new JLabel("Judul Buku/Artikel:");
         titleLabel.setFont(uiFontBold);
         titleLabel.setForeground(textColor);
-        
+
         titleField.setFont(uiFont);
         titleField.setPreferredSize(new Dimension(400, 32));
         titleField.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(new Color(200, 200, 200)),
-                BorderFactory.createEmptyBorder(4, 8, 4, 8)
-        ));
-        
+                BorderFactory.createEmptyBorder(4, 8, 4, 8)));
+
         titleField.setText(TITLE_PLACEHOLDER);
         titleField.setForeground(Color.GRAY);
         titleField.addFocusListener(new java.awt.event.FocusAdapter() {
@@ -132,6 +130,7 @@ public class MainFrame extends JFrame {
                     titleField.setForeground(textColor);
                 }
             }
+
             public void focusLost(java.awt.event.FocusEvent evt) {
                 if (titleField.getText().isEmpty()) {
                     titleField.setText(TITLE_PLACEHOLDER);
@@ -139,7 +138,7 @@ public class MainFrame extends JFrame {
                 }
             }
         });
-        
+
         titleFieldPanel.add(titleLabel, BorderLayout.WEST);
         titleFieldPanel.add(titleField, BorderLayout.CENTER);
 
@@ -162,10 +161,10 @@ public class MainFrame extends JFrame {
         outputArea.setLineWrap(true);
         outputArea.setWrapStyleWord(true);
         outputArea.setEditable(false);
-        
+
         inputArea.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
         outputArea.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-        
+
         inputArea.setText(INPUT_PLACEHOLDER);
         inputArea.setForeground(Color.GRAY);
         inputArea.addFocusListener(new java.awt.event.FocusAdapter() {
@@ -175,6 +174,7 @@ public class MainFrame extends JFrame {
                     inputArea.setForeground(textColor);
                 }
             }
+
             public void focusLost(java.awt.event.FocusEvent evt) {
                 if (inputArea.getText().trim().isEmpty()) {
                     inputArea.setText(INPUT_PLACEHOLDER);
@@ -182,15 +182,23 @@ public class MainFrame extends JFrame {
                 }
             }
         });
-        
+
         DocumentListener docListener = new DocumentListener() {
-            public void insertUpdate(DocumentEvent e) { updateState(); }
-            public void removeUpdate(DocumentEvent e) { updateState(); }
-            public void changedUpdate(DocumentEvent e) { updateState(); }
+            public void insertUpdate(DocumentEvent e) {
+                updateState();
+            }
+
+            public void removeUpdate(DocumentEvent e) {
+                updateState();
+            }
+
+            public void changedUpdate(DocumentEvent e) {
+                updateState();
+            }
         };
         inputArea.getDocument().addDocumentListener(docListener);
         outputArea.getDocument().addDocumentListener(docListener);
-        
+
         outputArea.setText(OUTPUT_PLACEHOLDER);
         outputArea.setForeground(Color.GRAY);
 
@@ -200,15 +208,13 @@ public class MainFrame extends JFrame {
 
         TitledBorder inputBorder = BorderFactory.createTitledBorder(
                 BorderFactory.createLineBorder(new Color(210, 210, 210), 1, true),
-                " Input Teks "
-        );
+                " Input Teks ");
         inputBorder.setTitleFont(uiFontBold);
         inputBorder.setTitleColor(textColor);
-        
+
         TitledBorder outputBorder = BorderFactory.createTitledBorder(
                 BorderFactory.createLineBorder(new Color(210, 210, 210), 1, true),
-                " Hasil Ringkasan "
-        );
+                " Hasil Ringkasan ");
         outputBorder.setTitleFont(uiFontBold);
         outputBorder.setTitleColor(textColor);
 
@@ -216,23 +222,23 @@ public class MainFrame extends JFrame {
         JPanel inputPanel = new JPanel(new BorderLayout(0, 10));
         inputPanel.setBackground(cardColor);
         inputPanel.setBorder(BorderFactory.createCompoundBorder(
-            inputBorder,
-            BorderFactory.createEmptyBorder(8, 16, 16, 16)
-        ));
-        
+                inputBorder,
+                BorderFactory.createEmptyBorder(8, 16, 16, 16)));
+
         JScrollPane inputScroll = new JScrollPane(inputArea);
         inputScroll.setBorder(BorderFactory.createEmptyBorder());
         inputScroll.setBackground(cardColor);
         inputScroll.setPreferredSize(new Dimension(0, 380)); // Batasi tinggi
         inputPanel.add(inputScroll, BorderLayout.CENTER);
 
-        // Upload TXT, Upload PDF, Bersihkan di bawah input teks (satu baris, sama besar)
+        // Upload TXT, Upload PDF, Bersihkan di bawah input teks (satu baris, sama
+        // besar)
         JPanel inputButtonsPanel = new JPanel(new GridLayout(1, 3, 10, 0));
         inputButtonsPanel.setBackground(cardColor);
         JButton uploadTxtButton = createStyledButton("Upload TXT", Color.WHITE, textColor, uiFont);
         JButton uploadPdfButton = createStyledButton("Upload PDF", Color.WHITE, textColor, uiFont);
         JButton clearButton = createStyledButton("Bersihkan", Color.WHITE, textColor, uiFont);
-        
+
         inputButtonsPanel.add(uploadTxtButton);
         inputButtonsPanel.add(uploadPdfButton);
         inputButtonsPanel.add(clearButton);
@@ -242,10 +248,9 @@ public class MainFrame extends JFrame {
         JPanel outputPanel = new JPanel(new BorderLayout(0, 10));
         outputPanel.setBackground(cardColor);
         outputPanel.setBorder(BorderFactory.createCompoundBorder(
-            outputBorder,
-            BorderFactory.createEmptyBorder(8, 16, 16, 16)
-        ));
-        
+                outputBorder,
+                BorderFactory.createEmptyBorder(8, 16, 16, 16)));
+
         JScrollPane outputScroll = new JScrollPane(outputArea);
         outputScroll.setBorder(BorderFactory.createEmptyBorder());
         outputScroll.setBackground(cardColor);
@@ -264,22 +269,22 @@ public class MainFrame extends JFrame {
         methodDropdown.setSelectedItem("Rule-Based - Offline");
         methodDropdown.setFont(uiFont);
         methodDropdown.setBackground(Color.WHITE);
-        
+
         lengthDropdown.setSelectedItem("Biasa");
         lengthDropdown.setFont(uiFont);
         lengthDropdown.setBackground(Color.WHITE);
-        
+
         summarizeButton.setFont(uiFontBold);
         summarizeButton.setFocusPainted(false);
         summarizeButton.setMargin(new Insets(4, 16, 4, 16));
         summarizeButton.setEnabled(false);
-        
+
         saveTxtButton.setFont(uiFont);
         saveTxtButton.setForeground(textColor);
         saveTxtButton.setFocusPainted(false);
         saveTxtButton.setMargin(new Insets(4, 12, 4, 12));
         saveTxtButton.setEnabled(false);
-        
+
         savePdfButton.setFont(uiFont);
         savePdfButton.setForeground(textColor);
         savePdfButton.setFocusPainted(false);
@@ -298,29 +303,28 @@ public class MainFrame extends JFrame {
         leftPanel.add(Box.createHorizontalStrut(5));
         leftPanel.add(lengthLabel);
         leftPanel.add(lengthDropdown);
-        
+
         JPanel rightPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 0));
         rightPanel.setBackground(bgColor);
         rightPanel.add(summarizeButton);
         rightPanel.add(saveTxtButton);
         rightPanel.add(savePdfButton);
-        
+
         bottomPanel.add(leftPanel, BorderLayout.WEST);
         bottomPanel.add(rightPanel, BorderLayout.EAST);
 
         // --- STATUS BAR ---
         statusLabelLeft.setFont(uiFont);
         statusLabelLeft.setForeground(new Color(100, 100, 100));
-        
+
         statusLabelRight.setFont(uiFont);
         statusLabelRight.setForeground(new Color(100, 100, 100));
-        
+
         JPanel statusPanel = new JPanel(new BorderLayout());
         statusPanel.setBackground(new Color(235, 235, 235));
         statusPanel.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createMatteBorder(1, 0, 0, 0, new Color(210, 210, 210)),
-                BorderFactory.createEmptyBorder(6, 16, 6, 16)
-        ));
+                BorderFactory.createEmptyBorder(6, 16, 6, 16)));
         statusPanel.add(statusLabelLeft, BorderLayout.WEST);
         statusPanel.add(statusLabelRight, BorderLayout.EAST);
 
@@ -328,7 +332,7 @@ public class MainFrame extends JFrame {
         footerContainer.setBackground(bgColor);
         footerContainer.add(bottomPanel, BorderLayout.CENTER);
         footerContainer.add(statusPanel, BorderLayout.SOUTH);
-        
+
         add(footerContainer, BorderLayout.SOUTH);
 
         // --- EVENT LISTENERS ---
@@ -340,7 +344,7 @@ public class MainFrame extends JFrame {
         saveTxtButton.addActionListener(e -> handleSaveTxt());
         savePdfButton.addActionListener(e -> handleSavePdf());
         clearButton.addActionListener(e -> handleClear());
-        
+
         updateState();
     }
 
@@ -350,7 +354,7 @@ public class MainFrame extends JFrame {
         btn.setForeground(fg);
         btn.setFocusPainted(false);
         btn.setMargin(new Insets(4, 14, 4, 14));
-        
+
         return btn;
     }
 
@@ -359,7 +363,7 @@ public class MainFrame extends JFrame {
         int outChars = 0;
         String rawInput = inputArea.getText();
         String rawOutput = outputArea.getText();
-        
+
         boolean isPlaceholderInput = rawInput.equals(INPUT_PLACEHOLDER);
         boolean isPlaceholderOutput = rawOutput.equals(OUTPUT_PLACEHOLDER);
         boolean isInputEmpty = rawInput.trim().isEmpty();
@@ -370,12 +374,12 @@ public class MainFrame extends JFrame {
         if (!isPlaceholderOutput) {
             outChars = rawOutput.length();
         }
-        
+
         statusLabelRight.setText(inChars + " karakter input \u2022 " + outChars + " karakter output");
-        
+
         boolean canSummarize = !isPlaceholderInput && !isInputEmpty;
         summarizeButton.setEnabled(canSummarize);
-        
+
         // Custom coloring for summarize button
         // Kita cukup mengatur enable/disable dan warna foreground gelap
         // agar tombol tidak hilang di LookAndFeel bawaan Windows
@@ -394,7 +398,8 @@ public class MainFrame extends JFrame {
                 inputArea.setText(textInputHandler.loadFromFile(chooser.getSelectedFile()));
                 inputArea.setForeground(textColor);
                 String fileName = chooser.getSelectedFile().getName();
-                if (fileName.toLowerCase().endsWith(".txt")) fileName = fileName.substring(0, fileName.length() - 4);
+                if (fileName.toLowerCase().endsWith(".txt"))
+                    fileName = fileName.substring(0, fileName.length() - 4);
                 titleField.setText(fileName);
                 titleField.setForeground(textColor);
                 setStatus("File TXT dimuat: " + chooser.getSelectedFile().getName());
@@ -413,7 +418,8 @@ public class MainFrame extends JFrame {
                 inputArea.setText(textInputHandler.loadFromFile(chooser.getSelectedFile()));
                 inputArea.setForeground(textColor);
                 String fileName = chooser.getSelectedFile().getName();
-                if (fileName.toLowerCase().endsWith(".pdf")) fileName = fileName.substring(0, fileName.length() - 4);
+                if (fileName.toLowerCase().endsWith(".pdf"))
+                    fileName = fileName.substring(0, fileName.length() - 4);
                 titleField.setText(fileName);
                 titleField.setForeground(textColor);
                 setStatus("File PDF dimuat: " + chooser.getSelectedFile().getName());
@@ -433,10 +439,11 @@ public class MainFrame extends JFrame {
 
         String uiMethod = (String) methodDropdown.getSelectedItem();
         String uiLength = (String) lengthDropdown.getSelectedItem();
-        
+
         String[] sentences = inputText.split("(?<=[.!?])\\s+");
         int totalSentences = sentences.length;
-        if (totalSentences == 0) totalSentences = 1;
+        if (totalSentences == 0)
+            totalSentences = 1;
 
         int sentenceCount = 1;
         if ("Biasa".equals(uiLength)) {
@@ -451,7 +458,7 @@ public class MainFrame extends JFrame {
         setStatus("Meringkas...");
 
         System.out.println("Method dipilih = " + uiMethod);
-        
+
         String apiKeyFromEnv = ConfigLoader.getOpenRouterApiKey();
 
         if (apiKeyFromEnv == null) {
@@ -493,17 +500,18 @@ public class MainFrame extends JFrame {
         }
 
         currentSummary = summaryFormatter.format(summary);
-        
+
         outputArea.setText(currentSummary);
         outputArea.setForeground(textColor);
-        
+
         String title = titleField.getText().trim();
-        if (title.equals(TITLE_PLACEHOLDER)) title = "";
+        if (title.equals(TITLE_PLACEHOLDER))
+            title = "";
         historyManager.addRecord(title, methodUsed, uiLength, inputText, currentSummary);
-        
+
         saveTxtButton.setEnabled(true);
         savePdfButton.setEnabled(true);
-        
+
         setStatus("Selesai meringkas teks.");
         updateState();
 
@@ -516,7 +524,7 @@ public class MainFrame extends JFrame {
             JOptionPane.showMessageDialog(this, "Belum ada riwayat ringkasan.");
             return;
         }
-        
+
         JDialog dialog = new JDialog(this, "Riwayat Ringkasan", true);
         dialog.setSize(650, 400);
         dialog.setLocationRelativeTo(this);
@@ -532,12 +540,15 @@ public class MainFrame extends JFrame {
         list.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         list.setCellRenderer(new DefaultListCellRenderer() {
             @Override
-            public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+            public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected,
+                    boolean cellHasFocus) {
                 super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
                 if (value instanceof HistoryRecord) {
                     HistoryRecord hr = (HistoryRecord) value;
-                    String titleDisp = (hr.getTitle() != null && !hr.getTitle().isEmpty()) ? hr.getTitle() : "Tanpa Judul";
-                    setText(titleDisp + " | " + hr.getMethod() + " | " + hr.getSummaryLength() + " | " + hr.getTimestamp());
+                    String titleDisp = (hr.getTitle() != null && !hr.getTitle().isEmpty()) ? hr.getTitle()
+                            : "Tanpa Judul";
+                    setText(titleDisp + " | " + hr.getMethod() + " | " + hr.getSummaryLength() + " | "
+                            + hr.getTimestamp());
                 }
                 return this;
             }
@@ -557,7 +568,7 @@ public class MainFrame extends JFrame {
 
         JScrollPane inputScroll = new JScrollPane(inputPreviewArea);
         inputScroll.setBorder(BorderFactory.createTitledBorder("Input Teks"));
-        
+
         JScrollPane summaryScroll = new JScrollPane(summaryPreviewArea);
         summaryScroll.setBorder(BorderFactory.createTitledBorder("Hasil Ringkasan"));
 
@@ -570,12 +581,12 @@ public class MainFrame extends JFrame {
             if (!e.getValueIsAdjusting()) {
                 HistoryRecord selected = list.getSelectedValue();
                 if (selected != null) {
-                    String input = selected.getInput() != null && !selected.getInput().trim().isEmpty() 
-                                   ? selected.getInput() 
-                                   : "(Tidak ada teks input)";
+                    String input = selected.getInput() != null && !selected.getInput().trim().isEmpty()
+                            ? selected.getInput()
+                            : "(Tidak ada teks input)";
                     inputPreviewArea.setText(input);
                     inputPreviewArea.setCaretPosition(0);
-                    
+
                     summaryPreviewArea.setText(selected.getSummary());
                     summaryPreviewArea.setCaretPosition(0);
                 }
@@ -592,11 +603,11 @@ public class MainFrame extends JFrame {
 
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 10));
         JButton clearHistoryButton = new JButton("Bersihkan Riwayat");
-        
+
         clearHistoryButton.addActionListener(e -> {
-            int confirm = JOptionPane.showConfirmDialog(dialog, 
-                "Apakah Anda yakin ingin menghapus semua riwayat ringkasan?", 
-                "Konfirmasi Hapus", JOptionPane.YES_NO_OPTION);
+            int confirm = JOptionPane.showConfirmDialog(dialog,
+                    "Apakah Anda yakin ingin menghapus semua riwayat ringkasan?",
+                    "Konfirmasi Hapus", JOptionPane.YES_NO_OPTION);
             if (confirm == JOptionPane.YES_OPTION) {
                 historyManager.clearHistory();
                 listModel.clear();
@@ -622,6 +633,37 @@ public class MainFrame extends JFrame {
         JOptionPane.showMessageDialog(this, helpText, "Bantuan", JOptionPane.INFORMATION_MESSAGE);
     }
 
+    private String generateFormattedExportContent() {
+        String title = titleField.getText().trim();
+        if (title.isEmpty() || title.equals(TITLE_PLACEHOLDER)) {
+            title = "Tidak Ada Judul";
+        }
+        
+        String method = (String) methodDropdown.getSelectedItem();
+        String length = (String) lengthDropdown.getSelectedItem();
+        
+        java.time.LocalDateTime now = java.time.LocalDateTime.now();
+        java.time.format.DateTimeFormatter dtf = java.time.format.DateTimeFormatter.ofPattern("dd MMMM yyyy, HH:mm");
+        String dateStr = dtf.format(now);
+        
+        StringBuilder sb = new StringBuilder();
+        sb.append("========================================================\n");
+        sb.append("                RINGKASAN BUKU / ARTIKEL                \n");
+        sb.append("========================================================\n\n");
+        sb.append("Judul    : ").append(title).append("\n");
+        sb.append("Metode   : ").append(method).append("\n");
+        sb.append("Panjang  : ").append(length).append("\n");
+        sb.append("Tanggal  : ").append(dateStr).append("\n\n");
+        sb.append("--------------------------------------------------------\n");
+        sb.append("ISI RINGKASAN:\n\n");
+        sb.append(currentSummary).append("\n\n");
+        sb.append("========================================================\n");
+        sb.append("      Dihasilkan oleh Aplikasi Ringkasan Otomatis       \n");
+        sb.append("========================================================\n");
+        
+        return sb.toString();
+    }
+
     private void handleSaveTxt() {
         if (currentSummary.isBlank()) {
             showError("Belum ada ringkasan untuk disimpan.");
@@ -631,7 +673,8 @@ public class MainFrame extends JFrame {
         chooser.setSelectedFile(new File(generateExportFileName("txt")));
         if (chooser.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
             try {
-                summaryFormatter.exportToTxt(currentSummary, chooser.getSelectedFile());
+                String contentToSave = generateFormattedExportContent();
+                summaryFormatter.exportToTxt(contentToSave, chooser.getSelectedFile());
                 JOptionPane.showMessageDialog(this, "Ringkasan berhasil disimpan ke TXT.");
                 setStatus("Disimpan ke TXT: " + chooser.getSelectedFile().getName());
             } catch (IOException ex) {
@@ -649,7 +692,8 @@ public class MainFrame extends JFrame {
         chooser.setSelectedFile(new File(generateExportFileName("pdf")));
         if (chooser.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
             try {
-                summaryFormatter.exportToPdf(currentSummary, chooser.getSelectedFile());
+                String contentToSave = generateFormattedExportContent();
+                summaryFormatter.exportToPdf(contentToSave, chooser.getSelectedFile());
                 JOptionPane.showMessageDialog(this, "Ringkasan berhasil disimpan ke PDF.");
                 setStatus("Disimpan ke PDF: " + chooser.getSelectedFile().getName());
             } catch (IOException ex) {
@@ -663,44 +707,44 @@ public class MainFrame extends JFrame {
         if (title.isEmpty() || title.equals(TITLE_PLACEHOLDER)) {
             title = "Ringkasan_Buku";
         }
-        
+
         String method = (String) methodDropdown.getSelectedItem();
         if (method != null) {
             method = method.contains("Rule-Based") ? "RuleBased" : "APIBased";
         } else {
             method = "RuleBased";
         }
-        
+
         String length = (String) lengthDropdown.getSelectedItem();
         if (length == null) {
             length = "Medium";
         }
-        
+
         java.time.LocalDateTime now = java.time.LocalDateTime.now();
         java.time.format.DateTimeFormatter dtf = java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm");
         String dateTime = dtf.format(now);
-        
+
         String rawName = title + "_" + method + "_" + length + "_" + dateTime;
         String safeName = rawName.replaceAll("[^a-zA-Z0-9\\-_]", "_").replaceAll("_+", "_");
-        
+
         return safeName + "." + extension;
     }
 
     private void handleClear() {
         titleField.setText(TITLE_PLACEHOLDER);
         titleField.setForeground(Color.GRAY);
-        
+
         inputArea.setText(INPUT_PLACEHOLDER);
         inputArea.setForeground(Color.GRAY);
-        
+
         outputArea.setText(OUTPUT_PLACEHOLDER);
         outputArea.setForeground(Color.GRAY);
-        
+
         currentSummary = "";
-        
+
         saveTxtButton.setEnabled(false);
         savePdfButton.setEnabled(false);
-        
+
         setStatus("Siap digunakan");
         updateState();
     }
@@ -709,7 +753,7 @@ public class MainFrame extends JFrame {
         JOptionPane.showMessageDialog(this, message, "Error", JOptionPane.ERROR_MESSAGE);
         setStatus("Error terjadi.");
     }
-    
+
     private void setStatus(String message) {
         statusLabelLeft.setText("Status: " + message);
     }

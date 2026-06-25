@@ -17,11 +17,11 @@ public class SummaryFormatter {
         return summary.trim().replaceAll("\\s+", " ");
     }
 
-    public void exportToTxt(String summary, File file) throws IOException {
-        Files.writeString(file.toPath(), format(summary), StandardCharsets.UTF_8);
+    public void exportToTxt(String content, File file) throws IOException {
+        Files.writeString(file.toPath(), content, StandardCharsets.UTF_8);
     }
 
-    public void exportToPdf(String summary, File file) throws IOException {
+    public void exportToPdf(String content, File file) throws IOException {
         PDDocument document = new PDDocument();
         try {
             PDPage page = new PDPage();
@@ -31,11 +31,24 @@ public class SummaryFormatter {
                 contentStream.beginText();
                 contentStream.setFont(PDType1Font.HELVETICA, 12);
                 contentStream.moveTextPositionByAmount(50, 750);
-                String[] lines = wrapText(format(summary), 80);
-                for (int i = 0; i < lines.length; i++) {
-                    if (i > 0)
+
+                // Pisahkan berdasarkan newline eksplisit, lalu wrap masing-masing
+                String[] paragraphs = content.split("\n");
+                boolean firstLine = true;
+
+                for (String paragraph : paragraphs) {
+                    if (paragraph.isEmpty()) {
                         contentStream.moveTextPositionByAmount(0, -16);
-                    contentStream.drawString(lines[i]);
+                        continue;
+                    }
+                    String[] lines = wrapText(paragraph, 80);
+                    for (String line : lines) {
+                        if (!firstLine) {
+                            contentStream.moveTextPositionByAmount(0, -16);
+                        }
+                        contentStream.drawString(line);
+                        firstLine = false;
+                    }
                 }
                 contentStream.endText();
             } finally {
@@ -48,6 +61,8 @@ public class SummaryFormatter {
     }
 
     private String[] wrapText(String text, int maxLength) {
+        if (text == null || text.isEmpty())
+            return new String[] { "" };
         StringBuilder builder = new StringBuilder();
         String[] words = text.split(" ");
         int currentLength = 0;
